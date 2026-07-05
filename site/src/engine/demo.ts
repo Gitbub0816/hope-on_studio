@@ -6,7 +6,7 @@
    canvas at runtime → data URL, so no asset files are written.
    ============================================================ */
 
-import { bloom, particleImage, type Palette, type ParticleVariant } from './index';
+import { bloom, particleImage } from './index';
 
 /* ---- test image generators ------------------------------------------------ */
 
@@ -268,17 +268,17 @@ section({
     title: 'Static progress',
     note: 'When opts.progress is set, there is no ScrollTrigger — the field renders at an exact progress. Drag to scrub the assembly the way the admin editor does.',
   });
-  const handle = particleImage(stage, { src: flower, variant: 'assemble', progress: 0.5, palette: 'dark' });
+  const handle = particleImage(stage, { src: flower, variant: 'assemble', progress: 1, palette: 'dark' });
   const row = document.createElement('div');
   row.className = 'editor-row';
   const label = document.createElement('span');
-  label.textContent = 'progress 0.50';
+  label.textContent = 'progress 1.00';
   const range = document.createElement('input');
   range.type = 'range';
   range.min = '0';
   range.max = '1';
   range.step = '0.01';
-  range.value = '0.5';
+  range.value = '1';
   range.addEventListener('input', () => {
     const p = parseFloat(range.value);
     handle.setProgress(p);

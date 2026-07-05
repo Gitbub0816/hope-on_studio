@@ -196,12 +196,14 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
     } else {
       // grace-note: 1–3 small blossoms clustered toward centre.
       const count = 1 + ((rand() * 3) | 0);
-      const base = Math.min(w, h) / 300;
+      // Genuinely small ("blink and you miss it") — a fixed petite scale that
+      // does not balloon on a large host.
+      const base = Math.min(180, Math.min(w, h) * 0.14) / 82;
       for (let i = 0; i < count; i++) {
         const b = makeBlossom(
-          w * (0.5 + (rand() - 0.5) * 0.4),
-          h * (0.5 + (rand() - 0.5) * 0.4),
-          base * (0.7 + rand() * 0.5),
+          w * (0.5 + (rand() - 0.5) * 0.5),
+          h * (0.5 + (rand() - 0.5) * 0.5),
+          base * (0.72 + rand() * 0.5),
         );
         b.delay = clamp(i * 0.12 + rand() * 0.08);
         blossoms.push(b);
@@ -256,8 +258,10 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
       ctx.fill();
     }
 
-    // Additive-ish glow so overlapping petals gain luminosity (kept low → no neon).
-    ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
+    // Translucent watercolour layering (source-over) — luminous but never
+    // neon/blown-out, the way real washes build up. A little extra alpha on
+    // dark grounds so petals still glow against the ink.
+    const boost = dark ? 1.18 : 1;
     for (const p of b.petals) {
       const pt = smooth(clamp((local - p.delay) / (1 - p.delay || 1)));
       if (pt <= 0) continue;
@@ -267,18 +271,17 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
       ctx.save();
       ctx.rotate(p.angle + p.curl * (1 - pt) + sway);
       ctx.scale(os, pt);
-      paintPetal(p.len, p.wid, p.color, clamp(pt * 1.1));
+      paintPetal(p.len, p.wid, p.color, clamp(pt * boost));
       ctx.restore();
     }
-    ctx.globalCompositeOperation = 'source-over';
 
     // Golden core + stamen freckles.
     const coreT = smooth(clamp((local - 0.5) / 0.5));
     if (coreT > 0.01) {
-      const cr = 16;
+      const cr = 13;
       const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, cr);
-      cg.addColorStop(0, rgba(rgbMix(b.core, cream, 0.4), 0.85 * coreT));
-      cg.addColorStop(0.6, rgba(b.core, 0.5 * coreT));
+      cg.addColorStop(0, rgba(rgbMix(b.core, cream, 0.35), 0.62 * coreT));
+      cg.addColorStop(0.6, rgba(b.core, 0.4 * coreT));
       cg.addColorStop(1, rgba(b.core, 0));
       ctx.fillStyle = cg;
       ctx.beginPath();
@@ -307,9 +310,7 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(d.rot + d.vr * travel * 3 + time * 0.2);
-    ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
     paintPetal(d.len, d.wid, d.color, alpha);
-    ctx.globalCompositeOperation = 'source-over';
     ctx.restore();
   }
 
