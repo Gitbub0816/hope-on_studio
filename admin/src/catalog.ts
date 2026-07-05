@@ -27,7 +27,20 @@ export interface ArrayField {
   path: string; // e.g. 'panels'
   label: string;
   itemLabel: (i: number) => string;
-  fields: Field[]; // paths relative to the item
+  fields: Field[]; // paths relative to the item (object items)
+  /** Word used in the "+ Add <noun>" button, e.g. 'panel', 'question'. */
+  addNoun: string;
+  /** Build a sensible in-voice default item; `count` is the current length. */
+  makeItem: (count: number) => unknown;
+  /** When set, items are plain strings (edited with this field kind) instead
+   *  of objects — the item lives directly at `${path}.${i}`. */
+  primitive?: Field;
+  /** Hard cap — no add button past this, with a gentle note. */
+  max?: number;
+  capNote?: string;
+  /** Soft cap — a quiet warning past this, but adding is still allowed. */
+  softMax?: number;
+  softMaxNote?: string;
 }
 
 export interface CatalogEntry {
@@ -93,6 +106,16 @@ export const CATALOG: CatalogEntry[] = [
         path: 'panels',
         label: 'Panels',
         itemLabel: (i) => `Panel ${i + 1}`,
+        addNoun: 'panel',
+        max: 3,
+        capNote: 'Three outlets, always — that is the studio’s rule.',
+        makeItem: () => ({
+          outlet: 'publishing',
+          title: 'New Outlet',
+          tagline: 'A line about this outlet, in the studio’s voice.',
+          image: img(PLACEHOLDER, 'A soft botanical scene rendered in halftone'),
+          bloom: 'iris',
+        }),
         fields: [
           { path: 'title', label: 'Title', kind: 'text', multiline: 'line' },
           { path: 'tagline', label: 'Tagline', kind: 'textarea', multiline: 'line', rows: 2 },
@@ -134,6 +157,15 @@ export const CATALOG: CatalogEntry[] = [
         path: 'items',
         label: 'Items',
         itemLabel: (i) => `Image ${i + 1}`,
+        addNoun: 'image',
+        softMax: 8,
+        softMaxNote: 'Long streams slow the page — a tighter edit often reads better.',
+        makeItem: () => ({
+          image: img('/assets/art/gallery-01.jpg', 'A new frame from the studio'),
+          size: 'md',
+          treatment: 'photo',
+          rotation: 0,
+        }),
         fields: [
           { path: 'image', label: 'Image', kind: 'image' },
           { path: 'size', label: 'Size', kind: 'select', options: ['sm', 'md', 'lg'] },
@@ -169,8 +201,18 @@ export const CATALOG: CatalogEntry[] = [
     type: 'marquee',
     label: 'Marquee',
     description: 'An infinite horizontal loop of studio phrases.',
-    fields: [{ path: 'phrases', label: 'Phrases', kind: 'csv', help: 'Comma-separated phrases.' }],
-    arrays: [],
+    fields: [],
+    arrays: [
+      {
+        path: 'phrases',
+        label: 'Phrases',
+        itemLabel: (i) => `Phrase ${i + 1}`,
+        addNoun: 'phrase',
+        primitive: { path: '', label: 'Phrase', kind: 'text', multiline: 'line' },
+        fields: [],
+        makeItem: () => 'A NEW STUDIO PHRASE',
+      },
+    ],
     makeDefault: () => ({
       phrases: ['NEW WORK IN THE MAKING', 'COMMISSIONS OPEN SOON', 'MADE SLOWLY, WITH HOPE'],
     }),
@@ -185,6 +227,11 @@ export const CATALOG: CatalogEntry[] = [
         path: 'items',
         label: 'Questions',
         itemLabel: (i) => `Q${i + 1}`,
+        addNoun: 'question',
+        makeItem: () => ({
+          q: 'A new question a visitor might ask?',
+          a: 'A warm, unhurried answer in the studio’s voice.',
+        }),
         fields: [
           { path: 'q', label: 'Question', kind: 'textarea', multiline: 'line', rows: 2 },
           { path: 'a', label: 'Answer', kind: 'textarea', multiline: 'line', rows: 3 },
@@ -213,6 +260,8 @@ export const CATALOG: CatalogEntry[] = [
         path: 'socials',
         label: 'Socials',
         itemLabel: (i) => `Link ${i + 1}`,
+        addNoun: 'link',
+        makeItem: () => ({ label: 'New link', href: '#' }),
         fields: [
           { path: 'label', label: 'Label', kind: 'text', multiline: 'line' },
           { path: 'href', label: 'URL', kind: 'text' },
@@ -268,6 +317,8 @@ export const CATALOG: CatalogEntry[] = [
         path: 'stats',
         label: 'Stats',
         itemLabel: (i) => `Stat ${i + 1}`,
+        addNoun: 'stat',
+        makeItem: () => ({ value: '0', suffix: '', label: 'a new measure' }),
         fields: [
           { path: 'value', label: 'Value', kind: 'text', multiline: 'line' },
           { path: 'suffix', label: 'Suffix', kind: 'text', multiline: 'line' },
@@ -297,6 +348,12 @@ export const CATALOG: CatalogEntry[] = [
         path: 'steps',
         label: 'Steps',
         itemLabel: (i) => `Step ${i + 1}`,
+        addNoun: 'step',
+        makeItem: (count) => ({
+          n: String(count + 1).padStart(2, '0'),
+          title: 'A step',
+          body: 'A short line about what happens here.',
+        }),
         fields: [
           { path: 'n', label: 'Number', kind: 'text', multiline: 'line' },
           { path: 'title', label: 'Title', kind: 'text', multiline: 'line' },

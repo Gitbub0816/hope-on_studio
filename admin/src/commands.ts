@@ -3,7 +3,7 @@
  * redo is exact. Commands are pure: apply/revert take content and return new
  * content (structuredClone under the hood), never mutating the argument.
  */
-import type { Block, PageContent } from '@shared/types';
+import type { Block, BlockStyle, PageContent } from '@shared/types';
 import { clone, getByPath, setByPath, uid } from './util';
 
 export interface Command {
@@ -102,5 +102,144 @@ export function reorderCommand(from: number, to: number): Command {
     structural: true,
     apply: (c) => moveIndex(c, from, to),
     revert: (c) => moveIndex(c, to, from),
+  };
+}
+
+/* ------------------------------- style ------------------------------- */
+
+/** Replace a block's whole `style` object (or clear it when empty/undefined).
+ *  Kept clean: absent keys mean "inherit the theme", so an empty style is
+ *  deleted rather than stored as `{}`. Fully invertible for undo. */
+function withStyle(content: PageContent, blockId: string, style: BlockStyle | undefined): PageContent {
+  const c = clone(content);
+  const b = c.blocks.find((x) => x.id === blockId);
+  if (b) {
+    if (style && Object.keys(style).length) b.style = style;
+    else delete b.style;
+  }
+  return c;
+}
+
+export function setStyleCommand(
+  content: PageContent,
+  blockId: string,
+  next: BlockStyle | undefined,
+  label = 'Style',
+): Command | null {
+  const b = content.blocks.find((x) => x.id === blockId);
+  if (!b) return null;
+  const old = b.style ? (clone(b.style) as BlockStyle) : undefined;
+  const cleaned = next && Object.keys(next).length ? (clone(next) as BlockStyle) : undefined;
+  // No-op guard so undo history isn't polluted by redundant edits.
+  if (JSON.stringify(old ?? null) === JSON.stringify(cleaned ?? null)) return null;
+  return {
+    label,
+    structural: false,
+    apply: (c) => withStyle(c, blockId, cleaned),
+    revert: (c) => withStyle(c, blockId, old),
+  };
+}
+
+/* --------------------------- array items ----------------------------- */
+
+/** Immutably transform an array prop at `arrPath` within a block's props. */
+function arrOp(
+  content: PageContent,
+  blockId: string,
+  arrPath: string,
+  fn: (arr: unknown[]) => unknown[],
+): PageContent {
+  const c = clone(content);
+  const b = c.blocks.find((x) => x.id === blockId);
+  if (b) {
+    const current = (getByPath(b.props, arrPath) as unknown[]) ?? [];
+    b.props = setByPath(b.props, arrPath, fn(clone(current)));
+  }
+  return c;
+}
+
+/** Append an item to an array prop. Structural so the inspector refreshes. */
+export function addArrayItemCommand(
+  content: PageContent,
+  blockId: string,
+  arrPath: string,
+  item: unknown,
+  label = 'Add item',
+): Command | null {
+  const b = content.blocks.find((x) => x.id === blockId);
+  if (!b) return null;
+  const at = ((getByPath(b.props, arrPath) as unknown[]) ?? []).length;
+  const value = clone(item);
+  return {
+    label,
+    structural: true,
+    apply: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        a.splice(at, 0, value);
+        return a;
+      }),
+    revert: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        a.splice(at, 1);
+        return a;
+      }),
+  };
+}
+
+export function removeArrayItemCommand(
+  content: PageContent,
+  blockId: string,
+  arrPath: string,
+  index: number,
+  label = 'Remove item',
+): Command | null {
+  const b = content.blocks.find((x) => x.id === blockId);
+  if (!b) return null;
+  const arr = (getByPath(b.props, arrPath) as unknown[]) ?? [];
+  if (index < 0 || index >= arr.length) return null;
+  const snapshot = clone(arr[index]);
+  return {
+    label,
+    structural: true,
+    apply: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        a.splice(index, 1);
+        return a;
+      }),
+    revert: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        a.splice(index, 0, snapshot);
+        return a;
+      }),
+  };
+}
+
+export function moveArrayItemCommand(
+  content: PageContent,
+  blockId: string,
+  arrPath: string,
+  from: number,
+  to: number,
+  label = 'Reorder item',
+): Command | null {
+  const b = content.blocks.find((x) => x.id === blockId);
+  if (!b) return null;
+  const arr = (getByPath(b.props, arrPath) as unknown[]) ?? [];
+  if (from < 0 || from >= arr.length || to < 0 || to >= arr.length || from === to) return null;
+  return {
+    label,
+    structural: true,
+    apply: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        const [x] = a.splice(from, 1);
+        a.splice(to, 0, x);
+        return a;
+      }),
+    revert: (c) =>
+      arrOp(c, blockId, arrPath, (a) => {
+        const [x] = a.splice(to, 1);
+        a.splice(from, 0, x);
+        return a;
+      }),
   };
 }

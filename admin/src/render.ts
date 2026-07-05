@@ -11,6 +11,7 @@
  */
 import type { Block, PageContent } from '@shared/types';
 import type { RenderCtx } from '@blocks/contract';
+import { applyBlockStyle } from '@site/boot';
 import { registry } from './registry';
 import { catalogFor } from './catalog';
 import { h } from './util';
@@ -53,6 +54,9 @@ export function renderBlock(content: PageContent, block: Block, index: number): 
   }
   el.dataset.blockId = block.id;
   el.dataset.blockType = block.type;
+  // Preview per-block Style overrides exactly as the live site would (reuses
+  // boot.applyBlockStyle), so Style-tab edits are visible immediately.
+  applyBlockStyle(el, block.style);
   return el;
 }
 

@@ -3,7 +3,7 @@
  * is unreachable the editor keeps working against bundled seed content and
  * object-URL media (offline draft mode).
  */
-import type { PageContent, RevisionSummary } from '@shared/types';
+import type { PageContent, RevisionSummary, Theme } from '@shared/types';
 import { apiSlug } from './seeds';
 
 export interface LoadResult {
@@ -76,6 +76,40 @@ export async function getRevisionContent(slug: string, id: number): Promise<Page
     return (await res.json()) as PageContent;
   } catch {
     return null;
+  }
+}
+
+export interface ThemeResult {
+  theme: Theme | null;
+  /** true when the server answered (even a 404 — meaning "no theme saved yet,
+   *  use the studio default"); false when unreachable / offline. */
+  online: boolean;
+}
+
+/** Load the sitewide theme. Missing route or no saved row → theme:null,
+ *  online:true so callers fall back to the studio default without alarm. */
+export async function getTheme(): Promise<ThemeResult> {
+  try {
+    const res = await timedFetch('/api/settings/theme');
+    if (res.ok) return { theme: (await res.json()) as Theme, online: true };
+    if (res.status === 404) return { theme: null, online: true };
+    return { theme: null, online: false };
+  } catch {
+    return { theme: null, online: false };
+  }
+}
+
+/** Persist the sitewide theme (publishes immediately — theme is not drafted). */
+export async function saveTheme(theme: Theme): Promise<SaveResult> {
+  try {
+    const res = await timedFetch('/api/settings/theme', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(theme),
+    });
+    return { ok: res.ok, online: true };
+  } catch {
+    return { ok: false, online: false };
   }
 }
 
