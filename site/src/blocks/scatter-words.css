@@ -1,0 +1,38 @@
+/* scatter-words — full-viewport exploded sentence */
+
+.scatter {
+  padding-block: 0;
+  overflow: clip;
+}
+.scatter__inner {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-section) var(--gutter);
+}
+
+.scatter__sentence {
+  max-width: 22ch;
+  text-align: center;
+  font-weight: 320;
+  font-size: clamp(2rem, 5.6vw, 5rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: rgba(242, 236, 225, 0.9);
+}
+
+.scatter-word {
+  padding-inline: 0.04em;
+}
+.scatter-word--em {
+  color: var(--champagne);
+  font-size: 1.16em;
+  font-weight: 500;
+  padding-inline: 0.12em;
+}
+
+@media (max-width: 720px) {
+  .scatter__sentence {
+    max-width: 16ch;
+  }
+}

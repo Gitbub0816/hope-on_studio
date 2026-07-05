@@ -1,0 +1,58 @@
+/* manifesto — cream editorial statement, asymmetric two-column */
+
+.manifesto__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.manifesto__heading {
+  font-size: var(--text-h2);
+  font-weight: 320;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  margin-top: 1.4rem;
+  max-width: 14ch;
+}
+.manifesto__heading em,
+.manifesto__heading {
+  color: var(--fg);
+}
+
+.manifesto__body {
+  padding-top: clamp(0.5rem, 4vh, 3rem);
+}
+.manifesto__rule {
+  width: min(100%, 20rem);
+  margin-bottom: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.manifesto__prose {
+  max-width: var(--measure);
+  display: flex;
+  flex-direction: column;
+  gap: 1.3em;
+}
+.manifesto__p {
+  font-size: clamp(1.06rem, 1.25vw, 1.28rem);
+  line-height: var(--leading-body);
+  color: var(--fg);
+}
+.manifesto__p:first-child {
+  font-family: var(--font-italic);
+  font-style: italic;
+  font-size: clamp(1.3rem, 1.9vw, 1.75rem);
+  line-height: 1.42;
+  color: var(--fg);
+}
+
+@media (max-width: 860px) {
+  .manifesto__grid {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 5vh, 3rem);
+  }
+  .manifesto__heading {
+    max-width: 18ch;
+  }
+}
