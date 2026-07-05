@@ -17,6 +17,23 @@
 
 ---
 
+## 2026-07-05 (THEME SYSTEM) — Editor now controls colors, fonts, styles, elements
+
+**Done:** Sitewide Theme (colors incl. vine hues, three font roles from a
+curated self-hosted catalog — Fraunces/Playfair/EB Garamond/Cormorant +
+Figtree/Inter/Karla — and type scale) stored in D1 settings key 'theme';
+GET (public) / PUT (auth) /api/settings/theme; site applies theme as CSS
+vars at boot before motion (polarity is theme-aware). Per-block Style tab
+(Block.style: ground/bg/text/accent/heading-font/spacing — absence =
+inherit; applied via boot.applyBlockStyle in both site and editor canvas).
+Editor: Theme drawer with live preview + save/reset, Content/Style
+inspector tabs, add/remove/reorder items inside every array prop (panels
+capped at 3 per the outlets rule). All undoable.
+
+**Gotchas:** theme saves publish immediately (not drafted). Admin theme
+module has a self-contained fallback identical to site/src/theme.ts's
+mapping. CORS now allows PUT.
+
 ## 2026-07-05 (v2 REDESIGN) — Light Sage World shipped
 
 **Owner redirect executed** (see DESIGN.md top banner): near-white sage ground

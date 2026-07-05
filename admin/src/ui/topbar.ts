@@ -13,6 +13,7 @@ export interface TopbarDeps {
   onRedo(): void;
   onPublish(): void;
   onOpenRevisions(): void;
+  onOpenTheme(): void;
 }
 
 export class Topbar {
@@ -53,6 +54,7 @@ export class Topbar {
 
     this.undoBtn = this.iconBtn('↩', 'Undo', () => this.deps.onUndo());
     this.redoBtn = this.iconBtn('↪', 'Redo', () => this.deps.onRedo());
+    const theme = this.textBtn('Theme', 'top__theme', () => this.deps.onOpenTheme());
     const history = this.textBtn('History', 'top__history', () => this.deps.onOpenRevisions());
 
     this.bloomHost = h('span', { class: 'top__bloom', 'aria-hidden': 'true' });
@@ -63,6 +65,7 @@ export class Topbar {
     const right = h('div', { class: 'top__right' }, [
       save,
       h('div', { class: 'top__undo' }, [this.undoBtn, this.redoBtn]),
+      theme,
       history,
       publishWrap,
     ]);

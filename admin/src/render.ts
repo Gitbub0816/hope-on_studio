@@ -11,7 +11,7 @@
  */
 import type { Block, PageContent } from '@shared/types';
 import type { RenderCtx } from '@blocks/contract';
-import { applyBlockStyle } from '@site/boot';
+import { applyBlockStyle } from '../../site/src/boot';
 import { registry } from './registry';
 import { catalogFor } from './catalog';
 import { h } from './util';

@@ -7,13 +7,18 @@ import type { Block, PageContent } from '@shared/types';
 import { EditorStore } from './store';
 import type { EditorState } from './store';
 import {
+  addArrayItemCommand,
   duplicateBlockCommand,
   insertBlockCommand,
+  moveArrayItemCommand,
+  removeArrayItemCommand,
   removeBlockCommand,
   reorderCommand,
   setPropCommand,
+  setStyleCommand,
 } from './commands';
 import type { Command } from './commands';
+import { catalogFor } from './catalog';
 import { seedFor, PAGES } from './seeds';
 import { getRevisionContent, loadContent, publish as apiPublish, saveDraft, uploadMedia } from './api';
 import { renderCanvas } from './render';
@@ -25,6 +30,7 @@ import { Inspector } from './ui/inspector';
 import { Palette } from './ui/palette';
 import { Overlay } from './ui/overlay';
 import { Revisions } from './ui/revisions';
+import { ThemePanel } from './ui/theme-panel';
 import { toast } from './ui/toast';
 
 export function mountEditor(root: HTMLElement): void {
@@ -55,15 +61,23 @@ export function mountEditor(root: HTMLElement): void {
     onRedo: () => store.redo(),
     onPublish: () => void publish(),
     onOpenRevisions: () => void revisions.open(),
+    onOpenTheme: () => themePanel.open(),
   });
 
   const inspector = new Inspector({
     store,
     onEdit: (id, path, value) => exec(setPropCommand(store.getState().draft, id, path, value)),
+    onStyle: (id, next) => exec(setStyleCommand(store.getState().draft, id, next)),
+    onAddItem: (id, arrPath) => addItem(id, arrPath),
+    onRemoveItem: (id, arrPath, index) => removeItem(id, arrPath, index),
+    onMoveItem: (id, arrPath, from, to) =>
+      exec(moveArrayItemCommand(store.getState().draft, id, arrPath, from, to)),
     onDelete: (id) => deleteBlock(id),
     onDuplicate: (id) => duplicateBlock(id),
     onSwapImage: (id, path) => beginImageSwap(id, path),
   });
+
+  const themePanel = new ThemePanel();
 
   const palette = new Palette({
     onChoose: (block, index) => addBlock(block, index),
@@ -85,7 +99,7 @@ export function mountEditor(root: HTMLElement): void {
   });
 
   const main = h('div', { class: 'editor-main' }, [scrollEl, inspector.el]);
-  root.append(topbar.el, banner, main, palette.el, revisions.el, fileInput);
+  root.append(topbar.el, banner, main, palette.el, revisions.el, themePanel.el, fileInput);
 
   // --- Overlay custom events (reorder / block actions) ----------------------
   scrollEl.addEventListener('blk-reorder', (e) => {
@@ -123,6 +137,28 @@ export function mountEditor(root: HTMLElement): void {
     store.execute(cmd);
     store.select(null);
     toast('Block deleted', {
+      action: { label: 'Undo', onClick: () => store.undo() },
+    });
+  }
+
+  // --- Array item operations ------------------------------------------------
+  function addItem(id: string, arrPath: string): void {
+    const block = store.getState().draft.blocks.find((b) => b.id === id);
+    const entry = block ? catalogFor(block.type) : undefined;
+    const arr = entry?.arrays.find((a) => a.path === arrPath);
+    if (!block || !arr) return;
+    const count = ((getByPath(block.props, arrPath) as unknown[]) ?? []).length;
+    exec(addArrayItemCommand(store.getState().draft, id, arrPath, arr.makeItem(count), `Add ${arr.addNoun}`));
+    // Selection is unchanged, so the inspector stays open on this block with the
+    // new (immediately editable) item appended.
+    toast(`Added ${arr.addNoun}`);
+  }
+
+  function removeItem(id: string, arrPath: string, index: number): void {
+    const cmd = removeArrayItemCommand(store.getState().draft, id, arrPath, index);
+    if (!cmd) return;
+    store.execute(cmd);
+    toast('Item removed', {
       action: { label: 'Undo', onClick: () => store.undo() },
     });
   }
@@ -267,10 +303,11 @@ export function mountEditor(root: HTMLElement): void {
     if (state.dirty && state.online && state.save === 'dirty') autosave.call();
   });
 
-  // Initial paint + async load of the live landing content.
+  // Initial paint + async load of the live landing content + sitewide theme.
   rebuild(store.getState().draft);
   topbar.reflect(store.getState());
   inspector.reflect(store.getState());
+  void themePanel.init(); // GET /api/settings/theme and apply so the canvas matches production
   void loadPage('');
   void PAGES; // (kept for clarity: page list drives the switcher)
 }

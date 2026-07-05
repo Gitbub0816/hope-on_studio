@@ -11,7 +11,7 @@
  */
 import type { FontKey, Theme } from '@shared/types';
 import defaultTheme from '@shared/theme-default.json';
-import { ensureFont } from '@site/fonts';
+import { ensureFont } from '../../site/src/fonts';
 
 export const DEFAULT_THEME: Theme = defaultTheme as Theme;
 
