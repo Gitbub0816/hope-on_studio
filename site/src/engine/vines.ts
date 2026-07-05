@@ -320,7 +320,30 @@ export function vinesLayer(host: HTMLElement, opts: VinesOptions = {}): VinesHan
       p.delay = clamp(p.delay * 0.45 + (i / total) * 0.55);
     });
 
-    return { scale: 1, rot: rand() * TAU, petals, heart, stamen, glow };
+    // Behind-glow + heart-core radial gradients: built once, alpha via globalAlpha.
+    const glowR = R * 1.7;
+    const glowGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, glowR);
+    glowGrad.addColorStop(0, rgba(glow, 0.26));
+    glowGrad.addColorStop(0.6, rgba(glow, 0.09));
+    glowGrad.addColorStop(1, rgba(glow, 0));
+    const coreR = R * 0.3;
+    const coreGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, coreR);
+    coreGrad.addColorStop(0, rgba(mixLin(stamen, warmWhite, 0.3), 0.9));
+    coreGrad.addColorStop(0.7, rgba(stamen, 0.5));
+    coreGrad.addColorStop(1, rgba(stamen, 0));
+
+    return {
+      scale: 1,
+      rot: rand() * TAU,
+      petals,
+      glow,
+      glowGrad,
+      glowR,
+      coreGrad,
+      coreR,
+      dotStyle: rgba(mixLin(stamen, { r: 120, g: 70, b: 20 }, 0.35), 0.8),
+      dotR: Math.max(0.8, R * 0.03),
+    };
   }
 
   function spawnVine(now: number, zoneOverride?: VineZone): Vine | null {
@@ -540,7 +563,7 @@ export function vinesLayer(host: HTMLElement, opts: VinesOptions = {}): VinesHan
     ctx.closePath();
   }
 
-  function drawBlossom(b: Blossom, x: number, y: number, open: number, unit: number, alpha: number): void {
+  function drawBlossom(b: Blossom, x: number, y: number, open: number, alpha: number): void {
     if (open <= 0) return;
     ctx.save();
     ctx.translate(x, y);
@@ -548,15 +571,12 @@ export function vinesLayer(host: HTMLElement, opts: VinesOptions = {}): VinesHan
     ctx.scale(b.scale, b.scale);
 
     // Soft hue glow behind the flower — vivid lift off the pale sage.
-    const gr = unit * 0.09;
-    const gw = ctx.createRadialGradient(0, 0, 0, 0, 0, gr);
-    gw.addColorStop(0, rgba(b.glow, 0.26 * alpha * smooth(open)));
-    gw.addColorStop(0.6, rgba(b.glow, 0.09 * alpha * smooth(open)));
-    gw.addColorStop(1, rgba(b.glow, 0));
-    ctx.fillStyle = gw;
+    ctx.globalAlpha = alpha * smooth(open);
+    ctx.fillStyle = b.glowGrad;
     ctx.beginPath();
-    ctx.arc(0, 0, gr, 0, TAU);
+    ctx.arc(0, 0, b.glowR, 0, TAU);
     ctx.fill();
+    ctx.globalAlpha = 1;
 
     for (const p of b.petals) {
       const pt = smooth(clamp((open - p.delay) / (1 - p.delay || 1)));
@@ -584,32 +604,27 @@ export function vinesLayer(host: HTMLElement, opts: VinesOptions = {}): VinesHan
     // Heart + gold stamen freckles.
     const coreT = smooth(clamp((open - 0.45) / 0.55));
     if (coreT > 0.01) {
-      const cr = unit * 0.016;
-      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, cr);
-      cg.addColorStop(0, rgba(mixLin(b.stamen, warmWhite, 0.3), 0.85 * coreT * alpha));
-      cg.addColorStop(0.7, rgba(b.stamen, 0.5 * coreT * alpha));
-      cg.addColorStop(1, rgba(b.stamen, 0));
-      ctx.fillStyle = cg;
+      ctx.globalAlpha = coreT * alpha;
+      ctx.fillStyle = b.coreGrad;
       ctx.beginPath();
-      ctx.arc(0, 0, cr, 0, TAU);
+      ctx.arc(0, 0, b.coreR, 0, TAU);
       ctx.fill();
-      ctx.fillStyle = rgba(mixLin(b.stamen, { r: 120, g: 70, b: 20 }, 0.35), 0.8 * coreT * alpha);
+      ctx.fillStyle = b.dotStyle;
       const dots = 8;
       for (let i = 0; i < dots; i++) {
         const a = (i / dots) * TAU + b.rot;
-        const rr = cr * (0.5 + (i % 3) * 0.3);
+        const rr = b.coreR * (0.5 + (i % 3) * 0.3);
         ctx.beginPath();
-        ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, Math.max(0.8, unit * 0.0016), 0, TAU);
+        ctx.arc(Math.cos(a) * rr, Math.sin(a) * rr, b.dotR, 0, TAU);
         ctx.fill();
       }
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
   }
 
   function drawVine(v: Vine, clock: number): void {
     const age = clock - v.born;
-    const { w, h } = surface;
-    const unit = Math.min(w, h);
 
     // Timeline.
     const grow = smooth(clamp(age / v.growDur));
@@ -644,7 +659,7 @@ export function vinesLayer(host: HTMLElement, opts: VinesOptions = {}): VinesHan
       const tip = strand.nodes[strand.nodes.length - 1];
       const reveal = clamp((grow - strand.attach) / (1 - strand.attach || 1));
       if (reveal < 0.999) continue; // only bloom once its strand is fully grown
-      drawBlossom(strand.blossom, tip.x, tip.y, open, unit, alpha);
+      drawBlossom(strand.blossom, tip.x, tip.y, open, alpha);
     }
     ctx.restore();
   }
