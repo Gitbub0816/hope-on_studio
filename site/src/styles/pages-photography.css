@@ -1,0 +1,13 @@
+/* Photography — darkroom personality. Ink-dominant accents on the shared
+   blocks: frame-number captions read like contact-sheet stamps, scattered
+   full-bleed develop moments get a touch more contrast. Scoped to
+   body.page-photography. */
+
+.page-photography .gallery__caption {
+  color: var(--champagne);
+  letter-spacing: 0.22em;
+}
+
+.page-photography .particle-image__caption {
+  font-size: 0.8rem;
+}

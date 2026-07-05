@@ -1,0 +1,39 @@
+/* Publishing — paper & ink personality: page-turn detailing on top of the
+   shared cream-dominant blocks. Scoped to body.page-publishing so it never
+   leaks into other pages. */
+
+/* Drop cap on the manifesto's first (whisper) paragraph — three-line drop,
+   upright Fraunces against the italic body it sits in. */
+.page-publishing .manifesto__prose .manifesto__p:first-child::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 460;
+  font-size: 3.6em;
+  line-height: 0.82;
+  padding: 0.04em 0.09em 0 0;
+  color: var(--clay);
+}
+
+/* A whisper of a page-edge along the manifesto — paper stacked underneath. */
+.page-publishing .block--manifesto {
+  position: relative;
+}
+.page-publishing .block--manifesto::after {
+  content: '';
+  position: absolute;
+  inset: 0.6rem 0.6rem auto auto;
+  top: auto;
+  bottom: 0;
+  right: 0;
+  width: min(3.5rem, 4vw);
+  height: 92%;
+  border-right: 1px solid rgba(25, 23, 20, 0.08);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .page-publishing .manifesto__prose .manifesto__p:first-child::first-letter {
+    font-size: 2.8em;
+  }
+}

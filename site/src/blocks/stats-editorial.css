@@ -1,0 +1,72 @@
+/* stats-editorial — map/stats moment: huge serif numerals, thin column rules */
+
+.stats-editorial__head {
+  max-width: 42rem;
+  margin-bottom: clamp(3rem, 7vh, 5rem);
+}
+.stats-editorial__heading {
+  margin-top: 1rem;
+  font-size: var(--text-h2);
+  font-weight: 340;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+.stats-editorial__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+.stats-editorial__col {
+  flex: 1 1 14rem;
+  padding: 0 clamp(1.5rem, 3vw, 3rem);
+  border-left: 1px solid var(--line);
+}
+.stats-editorial__col:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.stats-editorial__num {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+  font-family: var(--font-display);
+  line-height: 0.9;
+  color: var(--fg);
+}
+.stats-editorial__value {
+  font-size: clamp(3.4rem, 7vw, 6.6rem);
+  font-weight: 340;
+  min-width: 1ch;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.stats-editorial__suffix {
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-style: italic;
+  font-family: var(--font-italic);
+  color: var(--fg-soft);
+}
+
+.stats-editorial__label {
+  margin-top: clamp(0.8rem, 2vh, 1.4rem);
+  max-width: 20ch;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .stats-editorial__row {
+    flex-direction: column;
+    gap: clamp(2rem, 6vh, 3rem);
+  }
+  .stats-editorial__col {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding: clamp(1.5rem, 4vh, 2rem) 0 0;
+  }
+  .stats-editorial__col:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}

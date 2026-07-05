@@ -1,0 +1,55 @@
+/* particle-image — full-bleed halftone develop moment, ink ground */
+
+.particle-image {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  overflow: clip;
+}
+.particle-image--full {
+  min-height: 100svh;
+}
+.particle-image--half {
+  min-height: 60svh;
+}
+
+.particle-image__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas);
+  overflow: clip;
+}
+.particle-image__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.38;
+  filter: saturate(0.68) contrast(1.03);
+}
+
+.particle-image__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: calc(var(--z-canvas) + 1);
+  background: linear-gradient(
+    to top,
+    rgba(25, 23, 20, 0.82) 0%,
+    rgba(25, 23, 20, 0.1) 38%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+.particle-image__caption {
+  position: relative;
+  z-index: var(--z-content);
+  margin: 0 0 clamp(1.6rem, 4vh, 2.8rem) clamp(1.4rem, 4vw, 3rem);
+  color: var(--champagne);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle-image__img {
+    opacity: 0.5;
+  }
+}

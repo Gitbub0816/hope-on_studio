@@ -1,0 +1,73 @@
+/* 404 — a single art-directed moment, ink ground, a grace-note bloom */
+
+/* This page has no real block list — the "NN / total" stamp reads as 01/00,
+   which is just noise here. */
+.page-404 .chrome-stamp--br {
+  display: none;
+}
+
+.lost {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  overflow: clip;
+}
+
+/* A single grace-note, not a full moment — small and low, behind the
+   numeral's baseline, easy to miss (DESIGN.md § 3.3). */
+.lost__bloom {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  translate: -50% 0;
+  width: min(22rem, 55vw);
+  height: 12rem;
+  z-index: var(--z-canvas);
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.lost__inner {
+  position: relative;
+  z-index: var(--z-content);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.6rem, 2vh, 1.2rem);
+  padding-inline: var(--gutter);
+}
+
+.lost__kicker {
+  color: var(--champagne);
+  margin-bottom: 0.4rem;
+}
+
+.lost__numeral {
+  font-size: clamp(6rem, 22vw, 16rem);
+  font-weight: 340;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  color: rgba(242, 236, 225, 0.96);
+}
+
+.lost__whisper {
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  color: rgba(242, 236, 225, 0.75);
+  max-width: 32ch;
+  margin-top: 0.4rem;
+}
+
+.lost__home {
+  margin-top: clamp(1.6rem, 4vh, 2.6rem);
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 340;
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+  color: var(--champagne);
+  will-change: transform;
+  transition: color 0.4s var(--ease-out);
+}
+.lost__home:hover {
+  color: var(--cream);
+}
