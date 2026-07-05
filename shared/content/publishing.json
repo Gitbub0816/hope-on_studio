@@ -1,0 +1,91 @@
+{
+  "slug": "publishing",
+  "title": "Publishing — Hope On Studio",
+  "description": "Artistic books and journals from Hope On Studio — designed with patience, bound to be kept.",
+  "ground": "cream",
+  "blocks": [
+    {
+      "id": "pub-hero",
+      "type": "hero",
+      "props": {
+        "kicker": "Outlet Nº 01 — Paper & Ink",
+        "title": "PUBLISHING",
+        "subtitle": "Books and journals made to be held, written in, and handed down.",
+        "image": { "src": "/assets/art/publishing-hero.jpg", "alt": "A stack of cloth-bound journals with botanical endpapers" },
+        "meta": { "left": "HOPE ON STUDIO", "right": "BOOKS · JOURNALS · EPHEMERA" }
+      }
+    },
+    {
+      "id": "pub-manifesto",
+      "type": "manifesto",
+      "props": {
+        "kicker": "The Craft",
+        "heading": "A book is a\nslow object.",
+        "body": "In a world of feeds, a book refuses to scroll. Every title from the studio is composed like a keepsake: paper chosen by touch, margins that let the words breathe, covers that age gracefully.\n\nJournals are designed as invitations — structured enough to begin, open enough to become yours.",
+        "accent": "rule"
+      }
+    },
+    {
+      "id": "pub-gallery",
+      "type": "gallery-flow",
+      "props": {
+        "kicker": "Spreads & Bindings",
+        "items": [
+          { "image": { "src": "/assets/art/pub-spread-01.jpg", "alt": "Open spread with pressed-flower illustrations" }, "size": "lg", "treatment": "halftone", "rotation": -1.5 },
+          { "image": { "src": "/assets/art/pub-spread-02.jpg", "alt": "Typography detail with drop cap" }, "size": "md", "treatment": "photo", "rotation": 2 },
+          { "image": { "src": "/assets/art/pub-spread-03.jpg", "alt": "Journal prompts page in serif type" }, "size": "md", "treatment": "photo", "rotation": -2.5 },
+          { "image": { "src": "/assets/art/pub-spread-04.jpg", "alt": "Foil-stamped cover on linen cloth" }, "size": "sm", "treatment": "halftone", "rotation": 1 }
+        ]
+      }
+    },
+    {
+      "id": "pub-process",
+      "type": "process-steps",
+      "props": {
+        "kicker": "How a Title Happens",
+        "heading": "From whisper to shelf.",
+        "steps": [
+          { "n": "01", "title": "Listen", "body": "Every book starts as a sentence that refuses to leave. It gets a notebook of its own and a season to prove itself." },
+          { "n": "02", "title": "Compose", "body": "Words and images are set together like a table for guests — nothing crowded, nothing cold." },
+          { "n": "03", "title": "Bind", "body": "Materials are chosen last, on purpose: paper, cloth, and thread that match what the pages already believe." }
+        ]
+      }
+    },
+    {
+      "id": "pub-stats",
+      "type": "stats-editorial",
+      "props": {
+        "kicker": "The Shelf So Far",
+        "heading": "Small numbers, kept promises.",
+        "stats": [
+          { "value": "3", "suffix": "titles", "label": "in quiet development" },
+          { "value": "120", "suffix": "gsm", "label": "the lightest paper we will ever print on" },
+          { "value": "1", "label": "rule — never publish anything we wouldn't keep" }
+        ]
+      }
+    },
+    {
+      "id": "pub-quote",
+      "type": "quote-bloom",
+      "props": {
+        "quote": "Some pages are doors.",
+        "attribution": "on why the studio publishes at all"
+      }
+    },
+    {
+      "id": "pub-contact",
+      "type": "contact-card",
+      "props": {
+        "kicker": "For Readers & Stockists",
+        "heading": "Ask about the first titles",
+        "email": "press@hopeon.studio",
+        "socials": [{ "label": "Instagram", "href": "#" }]
+      }
+    },
+    {
+      "id": "pub-footer",
+      "type": "footer",
+      "props": { "line": "Made slowly, with hope.", "meta": "HOPE ON STUDIO — PUBLISHING" }
+    }
+  ]
+}

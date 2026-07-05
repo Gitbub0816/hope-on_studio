@@ -1,0 +1,129 @@
+{
+  "slug": "",
+  "title": "Hope On Studio — Publishing · Photography · Learning Design",
+  "description": "Hope On Studio is the creative practice of one maker across three crafts: artistic books and journals, photography, and learning design.",
+  "ground": "ink",
+  "blocks": [
+    {
+      "id": "landing-hero",
+      "type": "hero",
+      "props": {
+        "kicker": "A Studio of Three Crafts",
+        "title": "HOPE ON\nSTUDIO",
+        "subtitle": "Books that feel like keepsakes. Photographs that keep their breath. Learning that people carry with them.",
+        "image": { "src": "/assets/art/hero-bloom-field.jpg", "alt": "A field of soft botanicals rendered in halftone dots" },
+        "meta": { "left": "EST. 2026", "right": "PUBLISHING · PHOTOGRAPHY · LEARNING DESIGN" }
+      }
+    },
+    {
+      "id": "landing-manifesto",
+      "type": "manifesto",
+      "props": {
+        "kicker": "The Practice",
+        "heading": "Made slowly,\non purpose.",
+        "body": "Hope On Studio is a one-woman practice devoted to things worth keeping — pages you dog-ear, prints you frame, lessons you remember years later.\n\nThree crafts, one hand. Everything here is designed with patience, edited with courage, and finished only when it feels inevitable.",
+        "accent": "rule"
+      }
+    },
+    {
+      "id": "landing-triptych",
+      "type": "outlet-triptych",
+      "props": {
+        "kicker": "Three Creative Outlets",
+        "panels": [
+          {
+            "outlet": "publishing",
+            "title": "Publishing",
+            "tagline": "Artistic books & journals that ask to be held.",
+            "image": { "src": "/assets/art/outlet-publishing.jpg", "alt": "An open journal with pressed flowers on cream paper" },
+            "bloom": "iris"
+          },
+          {
+            "outlet": "photography",
+            "title": "Photography",
+            "tagline": "Quiet images with long memories.",
+            "image": { "src": "/assets/art/outlet-photography.jpg", "alt": "A muted still-life photograph in soft window light" },
+            "bloom": "coral"
+          },
+          {
+            "outlet": "learning-design",
+            "title": "Learning Design",
+            "tagline": "Courses built the way good stories are.",
+            "image": { "src": "/assets/art/outlet-learning.jpg", "alt": "Hand-drawn course blueprint with fine ink lines" },
+            "bloom": "gold"
+          }
+        ]
+      }
+    },
+    {
+      "id": "landing-scatter",
+      "type": "scatter-words",
+      "props": {
+        "sentence": "Every project begins the same way — with a small stubborn hope that it can be beautiful",
+        "emphasis": ["hope", "beautiful"]
+      }
+    },
+    {
+      "id": "landing-gallery",
+      "type": "gallery-flow",
+      "props": {
+        "kicker": "From the Studio",
+        "items": [
+          { "image": { "src": "/assets/art/gallery-01.jpg", "alt": "Journal spread with botanical illustration" }, "size": "lg", "treatment": "halftone", "rotation": -2 },
+          { "image": { "src": "/assets/art/gallery-02.jpg", "alt": "Still-life photograph of paper and petals" }, "size": "md", "treatment": "photo", "rotation": 1.5 },
+          { "image": { "src": "/assets/art/gallery-03.jpg", "alt": "Course storyboard sketches" }, "size": "sm", "treatment": "photo", "rotation": 3 },
+          { "image": { "src": "/assets/art/gallery-04.jpg", "alt": "Cloth-bound book cover with foil title" }, "size": "md", "treatment": "halftone", "rotation": -1 },
+          { "image": { "src": "/assets/art/gallery-05.jpg", "alt": "Contact sheet of muted photographs" }, "size": "lg", "treatment": "photo", "rotation": 2 }
+        ]
+      }
+    },
+    {
+      "id": "landing-quote",
+      "type": "quote-bloom",
+      "props": {
+        "quote": "Hope is a discipline —\nyou practice it in ink, in light, in the way you teach.",
+        "attribution": "the studio's founding line"
+      }
+    },
+    {
+      "id": "landing-marquee",
+      "type": "marquee",
+      "props": {
+        "phrases": ["NEW JOURNALS IN THE MAKING", "PRINTS COMING TO THE SHOP", "COURSES IN QUIET DEVELOPMENT", "COMMISSIONS OPEN SOON"]
+      }
+    },
+    {
+      "id": "landing-faq",
+      "type": "faq-scatter",
+      "props": {
+        "kicker": "Asked & Answered",
+        "items": [
+          { "q": "Who is behind Hope On Studio?", "a": "One maker, three crafts. The studio is a single pair of hands — which is exactly why everything matches." },
+          { "q": "Do you take commissions?", "a": "Soon. Custom journals, portrait sessions, and course design engagements will each open in their own season." },
+          { "q": "Where does the name come from?", "a": "From the habit of saying it out loud on hard days: hope on. It stuck, and then it became a practice." }
+        ]
+      }
+    },
+    {
+      "id": "landing-contact",
+      "type": "contact-card",
+      "props": {
+        "kicker": "Correspondence",
+        "heading": "Write to the studio",
+        "email": "hello@hopeon.studio",
+        "socials": [
+          { "label": "Instagram", "href": "#" },
+          { "label": "Pinterest", "href": "#" }
+        ]
+      }
+    },
+    {
+      "id": "landing-footer",
+      "type": "footer",
+      "props": {
+        "line": "Made slowly, with hope.",
+        "meta": "HOPE ON STUDIO — EST. 2026"
+      }
+    }
+  ]
+}

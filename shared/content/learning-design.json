@@ -1,0 +1,91 @@
+{
+  "slug": "learning-design",
+  "title": "Learning Design — Hope On Studio",
+  "description": "Course creation and instructional design from Hope On Studio — learning built the way good stories are.",
+  "ground": "cream",
+  "blocks": [
+    {
+      "id": "ld-hero",
+      "type": "hero",
+      "props": {
+        "kicker": "Outlet Nº 03 — The Blueprint",
+        "title": "LEARNING\nDESIGN",
+        "subtitle": "Courses and curricula built the way good stories are — with an arc, a heartbeat, and an ending that lands.",
+        "image": { "src": "/assets/art/learning-hero.jpg", "alt": "Fine-line course blueprint with annotations" },
+        "meta": { "left": "HOPE ON STUDIO", "right": "COURSES · CURRICULA · WORKSHOPS" }
+      }
+    },
+    {
+      "id": "ld-manifesto",
+      "type": "manifesto",
+      "props": {
+        "kicker": "The Method",
+        "heading": "Teaching is\ndesign work.",
+        "body": "Most courses are containers. The good ones are journeys — sequenced, paced, and honest about what it feels like to not know something yet.\n\nThe studio designs learning with the same materials as its books and photographs: structure, patience, and respect for the person on the other side.",
+        "accent": "rule"
+      }
+    },
+    {
+      "id": "ld-process",
+      "type": "process-steps",
+      "props": {
+        "kicker": "The Blueprint",
+        "heading": "Four moves, every time.",
+        "steps": [
+          { "n": "01", "title": "Map the distance", "body": "Where the learner starts, where they need to arrive, and what the terrain between actually looks like — before a single slide exists." },
+          { "n": "02", "title": "Design the arc", "body": "Modules are chapters. Each one earns the next, and the difficult middle is paced like a story, not a syllabus." },
+          { "n": "03", "title": "Build the moments", "body": "Practice, feedback, and small wins placed exactly where motivation usually dies. That placement is the craft." },
+          { "n": "04", "title": "Test with real people", "body": "A course isn't finished when the content is in — it's finished when a stranger gets through it and feels capable." }
+        ]
+      }
+    },
+    {
+      "id": "ld-stats",
+      "type": "stats-editorial",
+      "props": {
+        "kicker": "In Numbers",
+        "heading": "What the method holds.",
+        "stats": [
+          { "value": "4", "suffix": "moves", "label": "in every engagement, no exceptions" },
+          { "value": "90", "suffix": "%", "label": "of course problems are sequencing problems" },
+          { "value": "0", "label": "modules shipped without a learner test" }
+        ]
+      }
+    },
+    {
+      "id": "ld-gallery",
+      "type": "gallery-flow",
+      "props": {
+        "kicker": "Artifacts",
+        "items": [
+          { "image": { "src": "/assets/art/ld-artifact-01.jpg", "alt": "Course journey map with hand annotations" }, "size": "lg", "treatment": "halftone", "rotation": -1.5 },
+          { "image": { "src": "/assets/art/ld-artifact-02.jpg", "alt": "Storyboard frames for a video lesson" }, "size": "md", "treatment": "photo", "rotation": 2 },
+          { "image": { "src": "/assets/art/ld-artifact-03.jpg", "alt": "Workbook spread with exercises" }, "size": "md", "treatment": "photo", "rotation": -2 }
+        ]
+      }
+    },
+    {
+      "id": "ld-quote",
+      "type": "quote-bloom",
+      "props": {
+        "quote": "People don't finish courses.\nThey finish stories.",
+        "attribution": "the studio's working theory"
+      }
+    },
+    {
+      "id": "ld-contact",
+      "type": "contact-card",
+      "props": {
+        "kicker": "Engagements",
+        "heading": "Design a course together",
+        "email": "learning@hopeon.studio",
+        "socials": [{ "label": "LinkedIn", "href": "#" }]
+      }
+    },
+    {
+      "id": "ld-footer",
+      "type": "footer",
+      "props": { "line": "Made slowly, with hope.", "meta": "HOPE ON STUDIO — LEARNING DESIGN" }
+    }
+  ]
+}

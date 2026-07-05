@@ -1,0 +1,93 @@
+{
+  "slug": "photography",
+  "title": "Photography — Hope On Studio",
+  "description": "Quiet, muted photography from Hope On Studio — portraits, still life, and light kept on purpose.",
+  "ground": "ink",
+  "blocks": [
+    {
+      "id": "photo-hero",
+      "type": "hero",
+      "props": {
+        "kicker": "Outlet Nº 02 — The Darkroom",
+        "title": "PHOTOGRAPHY",
+        "subtitle": "Images developed the old way: patiently, and only the ones worth keeping.",
+        "image": { "src": "/assets/art/photography-hero.jpg", "alt": "A muted portrait dissolving into halftone grain" },
+        "meta": { "left": "HOPE ON STUDIO", "right": "PORTRAIT · STILL LIFE · PLACE" }
+      }
+    },
+    {
+      "id": "photo-manifesto",
+      "type": "manifesto",
+      "props": {
+        "kicker": "The Eye",
+        "heading": "Light, kept\non purpose.",
+        "body": "The studio photographs the way it publishes: little, and well. Portraits that let people look like themselves. Still lifes that treat ordinary objects with ceremony. Places at the hour they are most honest.\n\nEvery frame below begins as grain and resolves into light — stay with it.",
+        "accent": "rule"
+      }
+    },
+    {
+      "id": "photo-develop-1",
+      "type": "particle-image",
+      "props": {
+        "image": { "src": "/assets/art/photo-develop-01.jpg", "alt": "Still life with cut flowers in morning light" },
+        "caption": "Nº 01 — still life, morning",
+        "variant": "assemble",
+        "height": "full"
+      }
+    },
+    {
+      "id": "photo-develop-2",
+      "type": "particle-image",
+      "props": {
+        "image": { "src": "/assets/art/photo-develop-02.jpg", "alt": "Window-lit portrait in muted tones" },
+        "caption": "Nº 02 — portrait, window light",
+        "variant": "slats",
+        "height": "full"
+      }
+    },
+    {
+      "id": "photo-gallery",
+      "type": "gallery-flow",
+      "props": {
+        "kicker": "Selected Frames",
+        "items": [
+          { "image": { "src": "/assets/art/photo-frame-01.jpg", "alt": "Botanical shadow on paper" }, "size": "md", "treatment": "photo", "rotation": -2 },
+          { "image": { "src": "/assets/art/photo-frame-02.jpg", "alt": "Hands holding an open book" }, "size": "lg", "treatment": "photo", "rotation": 1 },
+          { "image": { "src": "/assets/art/photo-frame-03.jpg", "alt": "Quiet interior corner with chair" }, "size": "sm", "treatment": "halftone", "rotation": 2.5 },
+          { "image": { "src": "/assets/art/photo-frame-04.jpg", "alt": "Muted landscape at dusk" }, "size": "lg", "treatment": "photo", "rotation": -1 }
+        ]
+      }
+    },
+    {
+      "id": "photo-scatter",
+      "type": "scatter-words",
+      "props": {
+        "sentence": "A photograph is a promise that this light existed and someone stood still for it",
+        "emphasis": ["light", "still"]
+      }
+    },
+    {
+      "id": "photo-quote",
+      "type": "quote-bloom",
+      "props": {
+        "quote": "Develop only what you\nwant to remember.",
+        "attribution": "darkroom rule nº 1"
+      }
+    },
+    {
+      "id": "photo-contact",
+      "type": "contact-card",
+      "props": {
+        "kicker": "Sessions",
+        "heading": "Sit for a portrait",
+        "email": "sessions@hopeon.studio",
+        "socials": [{ "label": "Instagram", "href": "#" }]
+      }
+    },
+    {
+      "id": "photo-footer",
+      "type": "footer",
+      "props": { "line": "Made slowly, with hope.", "meta": "HOPE ON STUDIO — PHOTOGRAPHY" }
+    }
+  ]
+}

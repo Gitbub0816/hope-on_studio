@@ -1,0 +1,78 @@
+/* ============================================================
+   Hope On Studio — design tokens (source: context/DESIGN.md)
+   Muted world + reserved floral bloom. Do not add saturated
+   colors outside the --bloom-* family.
+   ============================================================ */
+
+:root {
+  /* Grounds */
+  --ink: #191714;
+  --ink-soft: #242019;
+  --cream: #f2ece1;
+  --cream-deep: #e7decd;
+
+  /* Muted accents */
+  --sage: #8a9484;
+  --clay: #b08d7a;
+  --stone: #a8a196;
+  --champagne: #d8c9a8;
+
+  /* Floral bloom — RESERVED (DESIGN.md § 3) */
+  --bloom-peony: #e86a8a;
+  --bloom-coral: #f2917b;
+  --bloom-iris: #9b7fc7;
+  --bloom-gold: #f0c36b;
+
+  /* Semantic (flip per section polarity via [data-ground]) */
+  --bg: var(--ink);
+  --bg-soft: var(--ink-soft);
+  --fg: rgba(242, 236, 225, 0.92);
+  --fg-soft: var(--stone);
+  --line: rgba(216, 201, 168, 0.28);
+
+  /* Type */
+  --font-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+  --font-italic: 'Cormorant Garamond', Georgia, serif;
+  --font-ui: 'Figtree Variable', 'Figtree', system-ui, sans-serif;
+
+  --text-hero: clamp(3.4rem, 11vw, 11rem);
+  --text-h2: clamp(2.2rem, 5.2vw, 4.6rem);
+  --text-h3: clamp(1.5rem, 2.8vw, 2.5rem);
+  --text-body: 1.06rem;
+  --text-meta: 0.72rem;
+  --track-meta: 0.18em;
+  --leading-body: 1.7;
+
+  /* Space & rhythm */
+  --space-section: clamp(6rem, 14vh, 11rem);
+  --gutter: clamp(1.25rem, 4vw, 4rem);
+  --measure: 62ch;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.85, 0, 0.15, 1);
+  --dur-entrance: 1.1s;
+
+  /* Z layers */
+  --z-canvas: 1;
+  --z-content: 2;
+  --z-nav: 50;
+  --z-cursor: 100;
+  --z-preloader: 200;
+}
+
+/* Section polarity — blocks declare data-ground, motion layer cross-fades */
+[data-ground='ink'] {
+  --bg: var(--ink);
+  --bg-soft: var(--ink-soft);
+  --fg: rgba(242, 236, 225, 0.92);
+  --fg-soft: var(--stone);
+  --line: rgba(216, 201, 168, 0.28);
+}
+[data-ground='cream'] {
+  --bg: var(--cream);
+  --bg-soft: var(--cream-deep);
+  --fg: var(--ink);
+  --fg-soft: #6f6758;
+  --line: rgba(25, 23, 20, 0.18);
+}
