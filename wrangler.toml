@@ -28,7 +28,7 @@ not_found_handling = "404-page"
 [[d1_databases]]
 binding = "DB"
 database_name = "hope-on-studio"
-database_id = "TBD-CREATE-ON-DEPLOY"
+database_id = "b1384ba7-e3bd-4e6e-b584-7b0fa0aa4703"
 
 # ---------------------------------------------------------------------------
 # R2 — original media uploads served back out at /media/<key>.
@@ -64,7 +64,7 @@ vars = { ENVIRONMENT = "production", ADMIN_BUILD_NOTE = "admin.hopeon.studio tal
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "hope-on-studio"
-database_id = "TBD-CREATE-ON-DEPLOY"
+database_id = "b1384ba7-e3bd-4e6e-b584-7b0fa0aa4703"
 
 [[env.production.r2_buckets]]
 binding = "MEDIA"
