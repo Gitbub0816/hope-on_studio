@@ -59,7 +59,14 @@ ADMIN_BUILD_NOTE = "admin.hopeon.studio talks to this same Worker's /api/* route
 # actually enforces the Cf-Access-Authenticated-User-Email header.
 # ---------------------------------------------------------------------------
 [env.production]
+name = "hope-on-studio"
 vars = { ENVIRONMENT = "production", ADMIN_BUILD_NOTE = "admin.hopeon.studio talks to this same Worker's /api/* routes" }
+
+[env.production.assets]
+directory = "./dist/site"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
 
 [[env.production.d1_databases]]
 binding = "DB"
