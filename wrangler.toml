@@ -1,0 +1,71 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "hope-on-studio"
+main = "worker/src/index.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ---------------------------------------------------------------------------
+# Static assets — the built public site (`npm run build` -> ./dist/site).
+# The Worker only runs for requests that don't match a file in here (API
+# routes, /media/*), plus the configured not-found fallback.
+# ---------------------------------------------------------------------------
+[assets]
+directory = "./dist/site"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
+
+# ---------------------------------------------------------------------------
+# D1 — content store (pages, revisions, media metadata, settings).
+#
+# OWNER SETUP (one-time, before first deploy):
+#   1. npx wrangler d1 create hope-on-studio
+#   2. Copy the `database_id` it prints into `database_id` below.
+#   3. Apply the schema:
+#        npx wrangler d1 execute DB --remote --file worker/src/db/schema.sql
+#      (use --local instead of --remote while developing against `wrangler dev --local`)
+# ---------------------------------------------------------------------------
+[[d1_databases]]
+binding = "DB"
+database_name = "hope-on-studio"
+database_id = "TBD-CREATE-ON-DEPLOY"
+
+# ---------------------------------------------------------------------------
+# R2 — original media uploads served back out at /media/<key>.
+#
+# OWNER SETUP (one-time, before first deploy):
+#   1. npx wrangler r2 bucket create hope-on-studio-media
+#   2. Nothing else to fill in — R2 buckets are referenced by name, not id.
+# ---------------------------------------------------------------------------
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "hope-on-studio-media"
+
+# ---------------------------------------------------------------------------
+# Vars — plain (non-secret) config available on `c.env`.
+# ENVIRONMENT gates the Cloudflare Access check in worker/src/middleware/auth.ts:
+# anything other than "production" allows unauthenticated mutating requests
+# through (with a console warning) so `wrangler dev --local` works without Access.
+# ---------------------------------------------------------------------------
+[vars]
+ENVIRONMENT = "development"
+ADMIN_BUILD_NOTE = "admin.hopeon.studio talks to this same Worker's /api/* routes"
+
+# ---------------------------------------------------------------------------
+# Production environment — deployed with `wrangler deploy --env production`.
+# Cloudflare Access should be configured on the admin. subdomain route in the
+# dashboard (Zero Trust > Access > Applications) — nothing to do here for
+# that beyond making sure ENVIRONMENT = "production" so the auth middleware
+# actually enforces the Cf-Access-Authenticated-User-Email header.
+# ---------------------------------------------------------------------------
+[env.production]
+vars = { ENVIRONMENT = "production", ADMIN_BUILD_NOTE = "admin.hopeon.studio talks to this same Worker's /api/* routes" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "hope-on-studio"
+database_id = "TBD-CREATE-ON-DEPLOY"
+
+[[env.production.r2_buckets]]
+binding = "MEDIA"
+bucket_name = "hope-on-studio-media"

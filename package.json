@@ -9,7 +9,9 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "dev:worker": "wrangler dev",
-    "build:admin": "vite build --config admin/vite.config.ts"
+    "build:admin": "vite build --config admin/vite.config.ts",
+    "seed:local": "node worker/scripts/build-seed.mjs && wrangler d1 execute DB --local --file worker/src/db/schema.sql && wrangler d1 execute DB --local --file worker/src/db/seed.sql",
+    "worker:typecheck": "tsc --noEmit -p worker"
   },
   "repository": {
     "type": "git",
