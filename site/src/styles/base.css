@@ -13,7 +13,7 @@ html {
 }
 
 body {
-  background: var(--ink);
+  background: var(--cream);
   color: var(--fg);
   font-family: var(--font-ui);
   font-size: var(--text-body);
@@ -59,8 +59,8 @@ button {
 }
 
 ::selection {
-  background: var(--champagne);
-  color: var(--ink);
+  background: var(--vine-fuchsia);
+  color: #fff;
 }
 
 /* Small-caps metadata — the corner-stamp language from reference video 1 */

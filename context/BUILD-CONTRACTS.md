@@ -1,5 +1,35 @@
 # Build contracts & file ownership (agents: read before touching anything)
 
+## WAVE R — "Light Sage World" redesign (owner redirect, DESIGN.md top banner)
+
+Ownership for this wave ONLY (v1 waves below are historical):
+
+| Area | Owner |
+|---|---|
+| `site/src/engine/vines.ts`, `site/vines-demo.html`, one export line appended to `site/src/engine/index.ts` | vines agent |
+| `site/src/motion/**`, `site/src/blocks/*.css` EXCEPT `gallery-flow.css`/`chrome.css`, `site/src/blocks/hero.ts`, `site/src/engine/util.ts` (palette-auto fix only), `site/src/styles/pages-*.css`, `site/src/styles/motion.css` | light-world agent |
+| `site/src/blocks/gallery-flow.ts` + `gallery-flow.css` | gallery agent |
+| `site/src/chrome.ts` + `chrome.css` (and `site/src/pages/*.ts` ONLY if a chrome call signature changes) | chrome agent |
+| `tools/art/**`, `site/public/assets/**` | art agent |
+| `tokens.css`, `base.css`, docs, deploy | orchestrator (done — do not edit) |
+
+### Vines layer interface (engine) — chrome agent consumes this
+
+```ts
+// site/src/engine/vines.ts
+export function vinesLayer(host: HTMLElement, opts?: {
+  density?: 'ambient' | 'lush';   // ambient = sparse random pops (default)
+  palette?: string[];             // css colors; default = the five --vine-* tokens
+  zone?: 'full' | 'edges';        // spawn region (default 'full')
+}): { destroy(): void };
+```
+
+Behavior: canvas layer filling `host`. Vines sprout at random points/timing
+("matrix dots" energy): a stem draws itself in over ~1.2-2s with leaves, opens
+1-3 blossoms (vivid vine palette, layered petals), holds, then gracefully fades;
+2-5 alive at any moment in 'ambient'. 60fps budget; pause when tab hidden;
+reduced motion = a few static vine illustrations, no growth animation.
+
 Multiple agents build this repo in parallel. **Only touch files you own.** If you need
 a change in someone else's area, note it in your final report instead of editing.
 

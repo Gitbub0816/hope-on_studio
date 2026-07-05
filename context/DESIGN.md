@@ -1,5 +1,35 @@
 # Hope On Studio — Design System & Motion Language
 
+> ## ⚠ OWNER REDIRECT — 2026-07-05 — "LIGHT SAGE WORLD" (v2) — SUPERSEDES § 2/§ 3 BELOW
+>
+> After seeing the live v1, the owner redirected the art direction:
+>
+> 1. **Light background everywhere.** Base ground = very light, near-white sage
+>    green (`--cream: #F3F6EF`). NO dark sections. The old ink↔cream polarity
+>    becomes a gentle flip between two *light* sage tints (`--cream` ↔
+>    `--sage-tint`). True dark survives ONLY in (a) the preloader start
+>    animation — owner explicitly likes it, do not change its choreography —
+>    and (b) inside framed imagery/photography.
+> 2. **Vivid flower-vine pops, site-wide.** Colorful vines+blossoms
+>    (`--vine-*` tokens: fuchsia, violet, teal, marigold, leaf) sprout at
+>    random positions across the screen, bloom, and fade — "like the matrix
+>    dots" but botanical, dynamic, elegant. Reference images:
+>    `context/reference/vine-ref-*.jpg` (neon flower vines — take the FORMS
+>    and vividness, NOT the neon-on-black look; ours pop against near-white
+>    sage). This replaces the old "bloom is reserved for 3 moments" rule —
+>    the ambient vine layer is site-wide; the engine bloom() moments remain.
+> 3. **Everything more animated and dynamic.** Idle sway/drift on elements,
+>    livelier hovers, perpetual gentle motion (always reduced-motion-safe).
+> 4. **Gallery images slide diagonally across the screen** — a continuous
+>    angled stream, not a static grid.
+> 5. **Chrome must be VERY different** from v1's plain top bar (owner request).
+> 6. **The admin editor is approved as-is.** Don't restyle it beyond token
+>    inheritance.
+>
+> Token names (`--ink`, `--cream`, ground keys `ink`/`cream`) were kept so
+> content/API/editor need no migration — but their values are light now
+> (`--ink` is the TEXT color). See `site/src/styles/tokens.css`.
+
 > Companion to `PLAN.md`. This translates the three reference videos into a concrete,
 > reusable design language. Reference frames live in `context/reference/` —
 > **look at them** (`v1_*.jpg` especially) before building any visual.

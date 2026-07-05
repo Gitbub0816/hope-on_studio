@@ -5,30 +5,49 @@
    ============================================================ */
 
 :root {
-  /* Grounds */
-  --ink: #191714;
-  --ink-soft: #242019;
-  --cream: #f2ece1;
-  --cream-deep: #e7decd;
+  /* ------------------------------------------------------------------
+     LIGHT SAGE WORLD (owner redirect 2026-07-05, DESIGN.md § 2)
+     The site lives on near-white sage. The legacy token NAMES are kept
+     so blocks/content don't change, but their MEANING is now light:
+       'cream' ground = near-white sage (base)
+       'ink' ground   = deeper sage tint (still light)
+     True dark exists ONLY in the preloader and inside framed imagery.
+     ------------------------------------------------------------------ */
+  --ink: #232820; /* deep green-charcoal — TEXT color, not a ground */
+  --ink-soft: #2e352a;
+  --cream: #f3f6ef; /* near-white sage — base ground */
+  --cream-deep: #e9efe0;
+  --sage-tint: #e4ebda; /* the 'ink'-named alternate ground (light) */
+  --sage-tint-deep: #d9e2cb;
+  --preloader-ink: #191714; /* the start animation keeps its dark screen */
 
-  /* Muted accents */
-  --sage: #8a9484;
-  --clay: #b08d7a;
-  --stone: #a8a196;
-  --champagne: #d8c9a8;
+  /* Muted accents (recalibrated for light grounds) */
+  --sage: #7d8a72;
+  --clay: #a87f6b;
+  --stone: #8b927f;
+  --champagne: #b08f45; /* antique gold — ornaments/numerals on light */
 
-  /* Floral bloom — RESERVED (DESIGN.md § 3) */
+  /* Floral bloom (engine petals) */
   --bloom-peony: #e86a8a;
   --bloom-coral: #f2917b;
   --bloom-iris: #9b7fc7;
   --bloom-gold: #f0c36b;
 
+  /* Vivid vine family — the dynamic flower-vine pops (site-wide ambient
+     layer + accents). Drawn from the owner's neon-floral references,
+     tuned to stay elegant on near-white sage. */
+  --vine-fuchsia: #d6479b;
+  --vine-violet: #8a63d2;
+  --vine-teal: #2fb5ae;
+  --vine-marigold: #e9a13b;
+  --vine-leaf: #4c9a63;
+
   /* Semantic (flip per section polarity via [data-ground]) */
-  --bg: var(--ink);
-  --bg-soft: var(--ink-soft);
-  --fg: rgba(242, 236, 225, 0.92);
-  --fg-soft: var(--stone);
-  --line: rgba(216, 201, 168, 0.28);
+  --bg: var(--cream);
+  --bg-soft: var(--cream-deep);
+  --fg: var(--ink);
+  --fg-soft: #66705c;
+  --line: rgba(35, 40, 31, 0.16);
 
   /* Type */
   --font-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
@@ -61,18 +80,19 @@
   --z-preloader: 200;
 }
 
-/* Section polarity — blocks declare data-ground, motion layer cross-fades */
+/* Section polarity — blocks declare data-ground, motion layer cross-fades.
+   Both grounds are LIGHT now: the flip is a gentle sage-tint shift. */
 [data-ground='ink'] {
-  --bg: var(--ink);
-  --bg-soft: var(--ink-soft);
-  --fg: rgba(242, 236, 225, 0.92);
-  --fg-soft: var(--stone);
-  --line: rgba(216, 201, 168, 0.28);
+  --bg: var(--sage-tint);
+  --bg-soft: var(--sage-tint-deep);
+  --fg: var(--ink);
+  --fg-soft: #5e6854;
+  --line: rgba(35, 40, 31, 0.2);
 }
 [data-ground='cream'] {
   --bg: var(--cream);
   --bg-soft: var(--cream-deep);
   --fg: var(--ink);
-  --fg-soft: #6f6758;
-  --line: rgba(25, 23, 20, 0.18);
+  --fg-soft: #66705c;
+  --line: rgba(35, 40, 31, 0.16);
 }
