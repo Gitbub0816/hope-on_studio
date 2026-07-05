@@ -69,6 +69,16 @@ export async function listRevisions(slug: string): Promise<RevisionSummary[] | n
   }
 }
 
+export async function getRevisionContent(slug: string, id: number): Promise<PageContent | null> {
+  try {
+    const res = await timedFetch(`/api/revisions/${apiSlug(slug)}/${id}`);
+    if (!res.ok) return null;
+    return (await res.json()) as PageContent;
+  } catch {
+    return null;
+  }
+}
+
 export interface MediaResult {
   src: string;
   offline: boolean;

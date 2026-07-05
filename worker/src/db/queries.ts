@@ -87,6 +87,14 @@ export async function insertDraftRevision(db: D1Database, pageId: number, blocks
   return row;
 }
 
+export async function getRevisionById(db: D1Database, pageId: number, id: number): Promise<RevisionRow | null> {
+  const row = await db
+    .prepare('SELECT * FROM revisions WHERE page_id = ? AND id = ?')
+    .bind(pageId, id)
+    .first<RevisionRow>();
+  return row ?? null;
+}
+
 export async function listRevisions(db: D1Database, pageId: number): Promise<RevisionRow[]> {
   const { results } = await db
     .prepare('SELECT * FROM revisions WHERE page_id = ? ORDER BY created_at DESC, id DESC')

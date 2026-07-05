@@ -1,11 +1,6 @@
 /**
  * The real site block registry, imported piece-by-piece from @blocks/* so the
  * editor preview is the actual site renderer — pixel-identical by construction.
- *
- * Some block types (particle-image, stats-editorial, process-steps) are still
- * Wave-2 stubs on the site side and have no renderer yet; they are absent here
- * and the canvas renders an elegant placeholder for them instead (see render.ts),
- * so every block stays selectable, movable, and editable regardless.
  */
 import type { BlockRenderer } from '@blocks/contract';
 
@@ -19,6 +14,9 @@ import { marqueeBlock } from '@blocks/marquee';
 import { faqScatter } from '@blocks/faq-scatter';
 import { contactCard } from '@blocks/contact-card';
 import { footer } from '@blocks/footer';
+import { particleImage } from '@blocks/particle-image';
+import { statsEditorial } from '@blocks/stats-editorial';
+import { processSteps } from '@blocks/process-steps';
 
 const RENDERERS = [
   hero,
@@ -31,6 +29,9 @@ const RENDERERS = [
   faqScatter,
   contactCard,
   footer,
+  particleImage,
+  statsEditorial,
+  processSteps,
 ] as unknown as BlockRenderer<never>[];
 
 export const registry = new Map<string, BlockRenderer<never>>(

@@ -190,9 +190,13 @@ export class Overlay {
       width: `${r.w}px`,
       height: `${r.h}px`,
     });
+    // Keep the toolbar (and its drag handle) reachable even when a tall block
+    // is scrolled so its top sits above the fold behind the topbar.
+    const sTop = this.deps.scrollEl.scrollTop;
+    const barTop = Math.min(Math.max(r.top + 8, sTop + 10), r.top + r.h - 44);
     Object.assign(this.toolbar.style, {
       display: 'flex',
-      top: `${Math.max(6, r.top + 8)}px`,
+      top: `${barTop}px`,
       left: `${r.left + r.w - 8}px`,
     });
     this.positionAdders();

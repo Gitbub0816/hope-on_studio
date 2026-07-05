@@ -1,11 +1,7 @@
 /**
  * Revision history — a slide-in panel listing GET /api/revisions/:slug.
- *
- * Limitation: the worker exposes revision *summaries* and a single
- * GET /api/content/:slug that returns the latest *published* revision only —
- * there is no endpoint to fetch an arbitrary revision's block JSON. So
- * "Restore" reloads the latest published content into the draft; per-revision
- * restore would need a `GET /api/revisions/:slug/:id` route on the worker.
+ * Restore fetches that revision's full content via
+ * GET /api/revisions/:slug/:id and loads it into the draft.
  */
 import type { RevisionSummary } from '@shared/types';
 import { listRevisions } from '../api';
@@ -13,7 +9,7 @@ import { h, relativeTime } from '../util';
 
 export interface RevisionsDeps {
   getSlug(): string;
-  onRestoreLatest(): void;
+  onRestore(id: number): void;
 }
 
 export class Revisions {
@@ -31,7 +27,7 @@ export class Revisions {
       ]),
       this.list,
       h('p', { class: 'revs__note whisper' }, [
-        'Restore brings back the last published version of this page as a new draft.',
+        'Restore brings any version of this page back as a new draft — nothing is ever lost.',
       ]),
     ]);
     const close = h('button', { class: 'revs__close', type: 'button', 'aria-label': 'Close' }, ['✕']);
@@ -71,14 +67,12 @@ export class Revisions {
       h('span', { class: 'revs__when meta' }, [`#${r.id} · ${stamp}`]),
     ]);
     const row = h('div', { class: 'revs__row' }, [meta]);
-    if (r.status === 'published') {
-      const btn = h('button', { class: 'revs__restore', type: 'button' }, ['Restore']);
-      btn.addEventListener('click', () => {
-        this.deps.onRestoreLatest();
-        this.hide();
-      });
-      row.append(btn);
-    }
+    const btn = h('button', { class: 'revs__restore', type: 'button' }, ['Restore']);
+    btn.addEventListener('click', () => {
+      this.deps.onRestore(r.id);
+      this.hide();
+    });
+    row.append(btn);
     return row;
   }
 

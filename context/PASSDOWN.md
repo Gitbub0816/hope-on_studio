@@ -17,6 +17,42 @@
 
 ---
 
+## 2026-07-05 (later) — Full site + admin editor built (multi-agent build)
+
+**Done:** The entire site is built and pushed. Orchestrated across parallel agents:
+- **Engine** (`site/src/engine/`): halftone particle images (assemble + slats
+  variants, ground-aware palette, static-progress mode for the editor, 60fps
+  measured) + procedural floral bloom (grace-note/full).
+- **Motion** (`site/src/motion/`): Lenis+GSAP, ink↔cream polarity flips, entrance
+  choreography, ghost headings, scatter words, marquee, magnetic, custom cursor
+  with circular-text badge, parallax. Reduced-motion everywhere.
+- **Artwork**: procedural generator (`tools/art/generate.mjs`, Playwright/SVG) for
+  all 25 placeholder images — upgraded once already (organic rosettes, chiaroscuro).
+  ALL are placeholders awaiting the owner's real photography/scans.
+- **Pages**: landing (10 blocks, preloader, chrome) + publishing/photography/
+  learning-design personalities + art-directed 404. All blocks editable-by-design.
+- **Backend** (`worker/`): Hono on CF Workers, D1 revisions (draft/publish), R2
+  media, Cloudflare Access auth model, seed pipeline (`npm run seed:local`).
+- **Admin editor** (`admin/`, port 5174 dev): live clone using the real block
+  renderers — select/inspect, inline text edit, image swap→R2, drag reorder,
+  block palette, autosave drafts, publish with bloom, undo/redo, per-revision
+  restore (route `GET /api/revisions/:slug/:id` added).
+
+**Next:**
+1. Deploy: create real D1 db + R2 bucket, fill ids in wrangler.toml (see
+   worker/README.md), set up `admin.` subdomain routing + Cloudflare Access.
+2. Polish backlog: Barba page-transition dissolve (deferred), inspector array
+   item add/remove, mobile pass on admin, Lighthouse run, real favicon.
+3. Replace placeholder art with the owner's real photography when supplied.
+
+**Decisions/gotchas:**
+- Dev: `npm run dev` (site :5173), `npm run dev:admin` (:5174), worker
+  `npx wrangler dev --local --port 8787` after `npm run seed:local`.
+- Screenshot verification pattern: scripts must live in repo root (module
+  resolution) and drive wheel events, not scrollTo (Lenis fights it).
+- Editor renders blocks with render() only (no mount) at engine progress 1 —
+  intentional static preview.
+
 ## 2026-07-05 — Project inception: reference analysis + planning docs
 
 **Done:**

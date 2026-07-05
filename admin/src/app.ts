@@ -15,7 +15,7 @@ import {
 } from './commands';
 import type { Command } from './commands';
 import { seedFor, PAGES } from './seeds';
-import { loadContent, publish as apiPublish, saveDraft, uploadMedia } from './api';
+import { getRevisionContent, loadContent, publish as apiPublish, saveDraft, uploadMedia } from './api';
 import { renderCanvas } from './render';
 import type { RenderedBlock } from './render';
 import { clone, debounce, getByPath, h } from './util';
@@ -71,7 +71,7 @@ export function mountEditor(root: HTMLElement): void {
 
   const revisions = new Revisions({
     getSlug: () => store.getState().slug,
-    onRestoreLatest: () => void restoreLatest(),
+    onRestore: (id) => void restoreRevision(id),
   });
 
   const overlay = new Overlay({
@@ -157,15 +157,15 @@ export function mountEditor(root: HTMLElement): void {
     store.load(slug, draft, online);
   }
 
-  // --- Restore latest published --------------------------------------------
-  async function restoreLatest(): Promise<void> {
-    const { content, online } = await loadContent(store.getState().slug);
-    if (!online || !content) {
+  // --- Restore a specific revision ------------------------------------------
+  async function restoreRevision(id: number): Promise<void> {
+    const content = await getRevisionContent(store.getState().slug, id);
+    if (!content) {
       toast('Could not reach the server to restore.');
       return;
     }
     store.replaceDraft(clone(content));
-    toast('Restored the last published version as a new draft.');
+    toast(`Restored revision #${id} as a new draft.`);
   }
 
   // --- Autosave -------------------------------------------------------------
