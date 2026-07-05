@@ -128,11 +128,12 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
   function makeBlossom(x: number, y: number, scale: number): Blossom {
     const hue = pick();
     // Layered petals (peony-like): outer big, inner tighter.
-    const R = 62 * scale;
+    const R = 82 * scale;
     const petals: Petal[] = [
-      ...buildPetals(8, R, hue, 0.16),
-      ...buildPetals(7, R * 0.7, rgbMix(hue, pick(), 0.4), 0.22),
-      ...buildPetals(5, R * 0.44, rgbMix(hue, cream, 0.25), 0.3),
+      ...buildPetals(11, R, hue, 0.14),
+      ...buildPetals(9, R * 0.74, rgbMix(hue, pick(), 0.4), 0.2),
+      ...buildPetals(7, R * 0.5, rgbMix(hue, pick(), 0.3), 0.26),
+      ...buildPetals(5, R * 0.3, rgbMix(hue, cream, 0.28), 0.32),
     ];
     // Inner layers open slightly later.
     const total = petals.length;
@@ -166,7 +167,7 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
         [0.84, 0.44, 0.42],
         [0.16, 0.66, 0.44],
       ];
-      const base = Math.min(w, h) / 620;
+      const base = Math.min(w, h) / 440;
       anchors.forEach(([fx, fy, s], i) => {
         const b = makeBlossom(
           w * fx + (rand() - 0.5) * w * 0.05,
@@ -195,7 +196,7 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
     } else {
       // grace-note: 1–3 small blossoms clustered toward centre.
       const count = 1 + ((rand() * 3) | 0);
-      const base = Math.min(w, h) / 360;
+      const base = Math.min(w, h) / 300;
       for (let i = 0; i < count; i++) {
         const b = makeBlossom(
           w * (0.5 + (rand() - 0.5) * 0.4),
@@ -220,11 +221,11 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
   }
 
   function paintPetal(len: number, wid: number, color: RGB, alpha: number): void {
-    const g = ctx.createRadialGradient(0, -len * 0.5, 0, 0, -len * 0.5, len * 0.95);
+    const g = ctx.createRadialGradient(0, -len * 0.5, 0, 0, -len * 0.5, len * 0.98);
     const soft = rgbMix(color, cream, 0.5);
-    g.addColorStop(0, rgba(soft, 0.5 * alpha));
-    g.addColorStop(0.45, rgba(color, 0.4 * alpha));
-    g.addColorStop(0.82, rgba(color, 0.22 * alpha));
+    g.addColorStop(0, rgba(soft, 0.66 * alpha));
+    g.addColorStop(0.4, rgba(color, 0.54 * alpha));
+    g.addColorStop(0.8, rgba(color, 0.3 * alpha));
     g.addColorStop(1, rgba(color, 0));
     ctx.fillStyle = g;
     petalPath(len, wid);
@@ -241,12 +242,14 @@ export function bloom(host: HTMLElement, opts: BloomOptions): BloomHandle {
     ctx.scale(b.scale, b.scale);
 
     // Soft watercolour wash behind the blossom (bleed).
-    const washA = smooth(clamp(local * 1.4)) * 0.5;
+    const washA = smooth(clamp(local * 1.4)) * 0.6;
     if (washA > 0.01) {
-      const wr = 120;
+      const wr = 165;
       const wash = ctx.createRadialGradient(0, 0, 0, 0, 0, wr);
-      wash.addColorStop(0, rgba(b.core, 0.16 * washA));
-      wash.addColorStop(1, rgba(b.core, 0));
+      const washHue = rgbMix(b.petals[0].color, cream, 0.15);
+      wash.addColorStop(0, rgba(washHue, 0.22 * washA));
+      wash.addColorStop(0.6, rgba(washHue, 0.08 * washA));
+      wash.addColorStop(1, rgba(washHue, 0));
       ctx.fillStyle = wash;
       ctx.beginPath();
       ctx.arc(0, 0, wr, 0, Math.PI * 2);
