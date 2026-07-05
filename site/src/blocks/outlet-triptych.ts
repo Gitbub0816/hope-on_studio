@@ -99,7 +99,7 @@ export const outletTriptych: BlockRenderer<TriptychProps> = {
           const hue = props.panels[i].bloom;
 
           if (canHover && !ctx.reducedMotion) {
-            const rest = 0.5;
+            const rest = 0.72;
             const handle = particleImage(host, {
               src: props.panels[i].image.src,
               variant: 'assemble',
