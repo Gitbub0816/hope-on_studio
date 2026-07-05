@@ -16,7 +16,7 @@ export async function corsMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
   if (origin && isLocalDev(c.env) && DEV_ORIGINS.has(origin)) {
     c.header('Access-Control-Allow-Origin', origin);
     c.header('Vary', 'Origin');
-    c.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
     c.header('Access-Control-Allow-Headers', 'Content-Type, Cf-Access-Authenticated-User-Email');
     c.header('Access-Control-Max-Age', '86400');
   }

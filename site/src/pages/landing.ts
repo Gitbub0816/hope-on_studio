@@ -10,6 +10,7 @@ import seed from '@shared/content/landing.json';
 
 import { initChrome } from '../chrome';
 import { initMotion } from '../motion';
+import { applyTheme, fetchTheme } from '../theme';
 
 import { hero } from '../blocks/hero';
 import { manifesto } from '../blocks/manifesto';
@@ -42,9 +43,10 @@ const registry = new Map<string, BlockRenderer<never>>(
 async function main(): Promise<void> {
   const seedContent = seed as unknown as PageContent;
 
-  // Preloader + chrome start immediately; content loads in parallel.
+  // Preloader + chrome start immediately; content and theme load in parallel.
+  // Theme must be applied before initMotion() runs (polarity reads ground colors).
   const chrome = initChrome(seedContent);
-  const content = await loadContent('', seedContent);
+  const [content] = await Promise.all([loadContent('', seedContent), fetchTheme().then(applyTheme)]);
   await chrome.done;
 
   renderPage(content, registry);

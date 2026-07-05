@@ -8,6 +8,7 @@ import { draftRoute } from './routes/draft';
 import { publishRoute } from './routes/publish';
 import { revisionsRoute } from './routes/revisions';
 import { mediaUploadRoute, mediaServeRoute } from './routes/media';
+import { settingsRoute } from './routes/settings';
 
 /**
  * Hope On Studio API worker.
@@ -28,6 +29,7 @@ app.route('/api/publish', publishRoute);
 app.route('/api/revisions', revisionsRoute);
 app.route('/api/media', mediaUploadRoute);
 app.route('/media', mediaServeRoute);
+app.route('/api/settings', settingsRoute);
 
 app.notFound((c) => jsonError(c, 404, 'Not found.'));
 

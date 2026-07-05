@@ -9,6 +9,7 @@ import type { PageContent } from '@shared/types';
 import { el } from '../blocks/contract';
 import { initChrome } from '../chrome';
 import { initMotion, entrance, magnetic } from '../motion';
+import { applyTheme, fetchTheme } from '../theme';
 import '../styles/pages-404.css';
 
 const page: PageContent = {
@@ -22,7 +23,9 @@ const page: PageContent = {
 async function main(): Promise<void> {
   document.body.classList.add('page-404');
   const chrome = initChrome(page);
-  await chrome.done;
+  // No content fetch on this page; theme loads alongside the preloader and
+  // must be applied before initMotion() runs (polarity reads ground colors).
+  await Promise.all([chrome.done, fetchTheme().then(applyTheme)]);
 
   document.title = page.title;
   document.body.dataset.ground = page.ground;

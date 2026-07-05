@@ -103,6 +103,29 @@ export async function listRevisions(db: D1Database, pageId: number): Promise<Rev
   return results ?? [];
 }
 
+export interface SettingRow {
+  key: string;
+  value_json: string;
+}
+
+export async function getSetting(db: D1Database, key: string): Promise<SettingRow | null> {
+  const row = await db.prepare('SELECT * FROM settings WHERE key = ?').bind(key).first<SettingRow>();
+  return row ?? null;
+}
+
+/** Upsert a settings row (settings.key is the primary key). */
+export async function upsertSetting(db: D1Database, key: string, value: unknown): Promise<SettingRow> {
+  const valueJson = JSON.stringify(value);
+  await db
+    .prepare(
+      'INSERT INTO settings (key, value_json) VALUES (?, ?) ' +
+        'ON CONFLICT(key) DO UPDATE SET value_json = excluded.value_json'
+    )
+    .bind(key, valueJson)
+    .run();
+  return { key, value_json: valueJson };
+}
+
 export async function publishLatestDraft(db: D1Database, pageId: number): Promise<RevisionRow | null> {
   const draft = await getLatestRevision(db, pageId, 'draft');
   if (!draft) return null;

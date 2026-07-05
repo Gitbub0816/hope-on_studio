@@ -11,6 +11,7 @@ import seed from '@shared/content/photography.json';
 
 import { initChrome } from '../chrome';
 import { initMotion } from '../motion';
+import { applyTheme, fetchTheme } from '../theme';
 
 import { hero } from '../blocks/hero';
 import { manifesto } from '../blocks/manifesto';
@@ -42,8 +43,13 @@ async function main(): Promise<void> {
   document.body.classList.add('page-photography');
   const seedContent = seed as unknown as PageContent;
 
+  // Content and theme load in parallel; theme must be applied before
+  // initMotion() runs (polarity reads ground colors).
   const chrome = initChrome(seedContent);
-  const content = await loadContent('photography', seedContent);
+  const [content] = await Promise.all([
+    loadContent('photography', seedContent),
+    fetchTheme().then(applyTheme),
+  ]);
   await chrome.done;
 
   renderPage(content, registry);

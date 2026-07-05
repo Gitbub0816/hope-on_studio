@@ -13,13 +13,26 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './util';
 
-// Resolved values of site/src/styles/tokens.css's --sage-tint / --cream.
-// Hardcoded (not read live) because GSAP tweens body.style.backgroundColor
-// directly and needs concrete color strings to interpolate between.
-const GROUND_COLOR: Record<string, string> = {
+// Theme-aware ground colors — read live from --sage-tint / --cream (set by
+// site/src/theme.ts's applyTheme, which runs before initMotion) so a custom
+// theme's grounds are honored. Hardcoded hexes are only the last-resort
+// fallback if the computed value is somehow empty (e.g. detached document).
+// GSAP tweens body.style.backgroundColor directly and needs a concrete color
+// string, so this is read once per setup call rather than live-bound.
+let GROUND_COLOR: Record<string, string> = {
   ink: '#e4ebda', // --sage-tint — the deeper light ground
   cream: '#f3f6ef', // --cream — the near-white base ground
 };
+
+function readGroundColors(): void {
+  const styles = getComputedStyle(document.documentElement);
+  const sageTint = styles.getPropertyValue('--sage-tint').trim();
+  const cream = styles.getPropertyValue('--cream').trim();
+  GROUND_COLOR = {
+    ink: sageTint || GROUND_COLOR.ink,
+    cream: cream || GROUND_COLOR.cream,
+  };
+}
 
 let currentGround: string | null = null;
 
@@ -44,6 +57,7 @@ function flipInstant(ground: string): void {
 
 /** Smooth, scroll-driven polarity flips (GSAP + ScrollTrigger path). */
 export function setupPolarity(): void {
+  readGroundColors();
   const sections = gsap.utils.toArray<HTMLElement>('[data-ground]');
   if (!sections.length) return;
 
@@ -66,6 +80,7 @@ export function setupPolarity(): void {
 
 /** Reduced-motion fallback: instant flips via IntersectionObserver, no Lenis/GSAP scrub. */
 export function setupPolarityReduced(): void {
+  readGroundColors();
   const sections = Array.from(document.querySelectorAll<HTMLElement>('[data-ground]'));
   if (!sections.length) return;
 

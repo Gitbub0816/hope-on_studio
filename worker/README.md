@@ -73,6 +73,27 @@ Mutating routes (`POST /api/draft`, `POST /api/publish/:slug`,
   `normalizeSlug` in `worker/src/db/queries.ts`) — this mapping is applied
   consistently across all `:slug` routes.
 
+## Theme API
+
+The sitewide `Theme` document (colors, fonts, type scale — see `shared/types.ts`
+`Theme` and `shared/theme-default.json`) is stored as a single `settings` row
+under key `'theme'`, and consumed by `site/src/theme.ts` (`fetchTheme` /
+`applyTheme`) before the site's motion layer boots.
+
+- `GET /api/settings/theme` — **public**, no auth (the site needs it to boot
+  before any Access session exists). Returns the stored theme doc, or the
+  contents of `shared/theme-default.json` if no row has been saved yet or the
+  stored value is corrupted. Never 404s — always returns *some* valid theme.
+- `PUT /api/settings/theme` (auth — same `Cf-Access-Authenticated-User-Email` /
+  local-dev-allow model as the other mutating routes, see "Auth model" above)
+  — body is the full `Theme` document. Validated loosely (must be an object
+  with `colors` and `fonts` objects — the editor is trusted to build a valid
+  shape beyond that); upserts the `settings` row and returns the saved doc.
+
+The front-end tolerates partial/malformed theme docs by deep-merging over
+`DEFAULT_THEME` in `applyTheme`, so an older client PUTting a theme missing a
+newly-added field won't blank anything out.
+
 ## Media
 
 `POST /api/media` stores uploads in R2 under a content-hash key
