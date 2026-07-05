@@ -5,11 +5,61 @@
 
 export type OutletKey = 'publishing' | 'photography' | 'learning-design';
 
+/**
+ * Per-block style overrides (element-focused styling, edited in the admin
+ * "Style" tab). All fields optional — absent means "inherit the theme".
+ * Applied by boot.renderPage as CSS custom properties / data attrs on the
+ * block's root section, so every token-driven rule inside just follows.
+ */
+export interface BlockStyle {
+  ground?: 'ink' | 'cream'; // section polarity choice (both are light tints)
+  bgColor?: string; // explicit section background (painted over the ground)
+  textColor?: string; // overrides --fg within the block
+  accentColor?: string; // overrides --champagne ornaments within the block
+  fontDisplay?: FontKey; // display face for headings inside this block
+  padScale?: number; // 0.5..1.5 multiplier on section padding
+}
+
 /** One content block instance on a page. `props` shape depends on `type`. */
 export interface Block<P = Record<string, unknown>> {
   id: string; // stable uuid — the editor keys off this
   type: string; // must exist in the block registry
   props: P;
+  style?: BlockStyle; // optional per-block style overrides
+}
+
+/* ------------------------------ Theme ------------------------------ */
+
+export type FontKey =
+  | 'fraunces'
+  | 'playfair'
+  | 'eb-garamond'
+  | 'cormorant'
+  | 'figtree'
+  | 'inter'
+  | 'karla';
+
+/** Sitewide theme document — stored in D1 `settings` under key 'theme',
+ *  edited in the admin Theme panel, applied as CSS vars at boot. */
+export interface Theme {
+  colors: {
+    cream: string; // base ground
+    sageTint: string; // alternate ground
+    ink: string; // text
+    champagne: string; // ornaments/numerals
+    vineFuchsia: string;
+    vineViolet: string;
+    vineTeal: string;
+    vineMarigold: string;
+    vineLeaf: string;
+  };
+  fonts: {
+    display: FontKey; // serif display face
+    italic: FontKey; // whisper/italic face
+    ui: FontKey; // sans UI face
+  };
+  /** Root type scale multiplier, 0.9–1.1 */
+  typeScale: number;
 }
 
 export interface PageContent {

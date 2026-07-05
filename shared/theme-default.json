@@ -1,0 +1,19 @@
+{
+  "colors": {
+    "cream": "#f3f6ef",
+    "sageTint": "#e4ebda",
+    "ink": "#232820",
+    "champagne": "#b08f45",
+    "vineFuchsia": "#d6479b",
+    "vineViolet": "#8a63d2",
+    "vineTeal": "#2fb5ae",
+    "vineMarigold": "#e9a13b",
+    "vineLeaf": "#4c9a63"
+  },
+  "fonts": {
+    "display": "fraunces",
+    "italic": "cormorant",
+    "ui": "figtree"
+  },
+  "typeScale": 1
+}

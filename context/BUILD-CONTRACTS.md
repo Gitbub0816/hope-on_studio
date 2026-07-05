@@ -1,5 +1,41 @@
 # Build contracts & file ownership (agents: read before touching anything)
 
+## WAVE T — Theme system (sitewide + per-block styling, add elements)
+
+Fixed contracts (orchestrator-owned, DONE — read, don't edit):
+- `shared/types.ts`: `Theme`, `FontKey`, `BlockStyle`, `Block.style?`
+- `shared/theme-default.json` — the default theme document
+- `site/src/fonts.ts` — curated font catalog + `ensureFont(key)` lazy loader
+- `site/src/boot.ts` — `applyBlockStyle(node, style)` applied in renderPage
+
+Ownership this wave:
+
+| Area | Owner |
+|---|---|
+| `worker/src/**` (settings routes + seed), `site/src/theme.ts` (NEW), `site/src/motion/polarity.ts` (theme-awareness only), `site/src/pages/*.ts` (theme boot call only), `worker/README.md` | theme-runtime agent |
+| `admin/src/**` | editor agent |
+
+### Theme runtime interface — `site/src/theme.ts` (theme-runtime agent builds; editor agent consumes)
+
+```ts
+import type { Theme } from '@shared/types';
+export const DEFAULT_THEME: Theme;                    // from shared/theme-default.json
+export async function fetchTheme(): Promise<Theme>;   // GET /api/settings/theme, fallback DEFAULT_THEME, 2.5s timeout
+export async function applyTheme(t: Theme, root?: HTMLElement): Promise<void>;
+// applyTheme maps colors → the CSS custom props on :root (or `root`):
+//   cream→--cream(+--bg when base), sageTint→--sage-tint, ink→--ink(+--fg),
+//   champagne→--champagne, vine*→--vine-*; derives --cream-deep/--sage-tint-deep
+//   by darkening ~4%; sets html font-size = calc(100% * typeScale);
+//   loads fonts via ensureFont and sets --font-display/--font-italic/--font-ui.
+```
+
+### API (theme-runtime agent adds to worker)
+- `GET /api/settings/theme` → Theme JSON (PUBLIC — no auth; the site boots with it). 404→ serve DEFAULT (return the default doc, don't error).
+- `PUT /api/settings/theme` (auth like other mutating routes) → upsert into `settings` (key 'theme').
+
+### Ordering contract
+Page entries: `applyTheme(await fetchTheme())` must complete BEFORE `initMotion()` runs (polarity reads ground colors). `initMotion`'s polarity must read `--cream`/`--sage-tint` computed values at init instead of hardcoded hexes.
+
 ## WAVE R — "Light Sage World" redesign (owner redirect, DESIGN.md top banner)
 
 Ownership for this wave ONLY (v1 waves below are historical):

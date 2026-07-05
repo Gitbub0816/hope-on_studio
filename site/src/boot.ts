@@ -10,8 +10,9 @@ import '@fontsource/cormorant-garamond/600-italic.css';
 import './styles/tokens.css';
 import './styles/base.css';
 
-import type { PageContent } from '@shared/types';
+import type { BlockStyle, PageContent } from '@shared/types';
 import type { BlockRenderer, RenderCtx, Cleanup } from './blocks/contract';
+import { ensureFont } from './fonts';
 
 export const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -29,6 +30,39 @@ export async function loadContent(slug: string, seed: PageContent): Promise<Page
     /* offline / static — seed is the source */
   }
   return seed;
+}
+
+/**
+ * Apply per-block style overrides (shared/types BlockStyle) to a block's root
+ * section. Everything inside is token-driven, so overriding the custom
+ * properties at the section level cascades cleanly. Used by the public site
+ * and the admin editor alike.
+ */
+export function applyBlockStyle(node: HTMLElement, style?: BlockStyle): void {
+  if (!style) return;
+  if (style.ground) node.dataset.ground = style.ground;
+  if (style.textColor) {
+    node.style.setProperty('--fg', style.textColor);
+    node.style.setProperty('--ink', style.textColor);
+  }
+  if (style.accentColor) node.style.setProperty('--champagne', style.accentColor);
+  if (style.bgColor) {
+    // Explicit background paints the section itself (grounds are normally
+    // transparent so the body polarity flip shows through).
+    node.style.background = style.bgColor;
+  }
+  if (style.padScale && style.padScale !== 1) {
+    const clamped = Math.min(1.5, Math.max(0.5, style.padScale));
+    node.style.setProperty(
+      '--space-section',
+      `calc(clamp(6rem, 14vh, 11rem) * ${clamped})`,
+    );
+  }
+  if (style.fontDisplay) {
+    void ensureFont(style.fontDisplay).then((family) => {
+      node.style.setProperty('--font-display', family);
+    });
+  }
 }
 
 /** Render a full page from content into #app using the given registry. */
@@ -53,6 +87,7 @@ export function renderPage(
     const node = renderer.render(block.props as never, ctx);
     node.dataset.blockId = block.id;
     node.dataset.blockType = block.type;
+    applyBlockStyle(node, block.style);
     target.append(node);
     if (renderer.mount) {
       mounts.push(() => {
