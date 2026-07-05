@@ -17,6 +17,21 @@
 
 ---
 
+## 2026-07-05 (deploy prep) — Cloudflare resources provisioned, pushed to main
+
+**Done:** Pushed full history to `main` (owner-authorized). Provisioned via the
+Cloudflare API: R2 bucket `hope-on-studio-media` (created), D1 `hope-on-studio`
+(pre-existing, id `b1384ba7-e3bd-4e6e-b584-7b0fa0aa4703` now in wrangler.toml)
+with schema applied and all 4 pages seeded as published revisions — production
+D1 is LIVE with content. Added `admin-worker/` (name `hope-on-studio-admin`):
+serves `dist/admin`, proxies `/api|/media` to the main worker via service
+binding so Access headers flow through; verified locally with multi-config
+`wrangler dev`. **Owner still does:** `wrangler deploy --env production` (main),
+`wrangler deploy --config admin-worker/wrangler.toml` (admin, after
+`npm run build:admin`), then enable Cloudflare Access on the admin hostname
+(NOT the Zero Trust "private web app/tunnel" wizard — use self-hosted app or
+the workers.dev Enable Access toggle).
+
 ## 2026-07-05 (later) — Full site + admin editor built (multi-agent build)
 
 **Done:** The entire site is built and pushed. Orchestrated across parallel agents:
