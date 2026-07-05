@@ -2,8 +2,8 @@
  * Shared boot module — every page entry imports this FIRST.
  * Fonts, tokens, base styles, and the page-rendering runtime.
  */
-import '@fontsource-variable/fraunces';
-import '@fontsource-variable/figtree';
+import '@fontsource-variable/fraunces/index.css';
+import '@fontsource-variable/figtree/index.css';
 import '@fontsource/cormorant-garamond/500.css';
 import '@fontsource/cormorant-garamond/500-italic.css';
 import '@fontsource/cormorant-garamond/600-italic.css';

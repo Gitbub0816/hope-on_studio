@@ -1,0 +1,84 @@
+/* DEV-ONLY layout for motion-demo.html — not shipped. */
+
+.demo-section {
+  min-height: 100vh;
+  padding: clamp(2rem, 8vw, 6rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+  background: transparent;
+}
+
+.demo-hero h1 {
+  font-size: var(--text-hero);
+}
+
+.demo-manifesto h2 {
+  font-size: var(--text-h2);
+}
+
+.rule {
+  width: 6rem;
+  height: 1px;
+  background: var(--line);
+}
+
+.demo-canvas {
+  border-radius: 4px;
+  max-width: 480px;
+  width: 100%;
+  height: auto;
+}
+
+.scatter-line {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 3rem);
+  max-width: 50rem;
+}
+
+.triptych-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.magnetic-btn {
+  padding: 1rem 2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: var(--track-meta);
+  font-size: var(--text-meta);
+}
+
+.gallery-row {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.gallery-card {
+  width: 180px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 3rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg-soft);
+}
+
+.marquee-el {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 4rem);
+}
+
+.demo-footer .whisper {
+  font-size: 1.4rem;
+}

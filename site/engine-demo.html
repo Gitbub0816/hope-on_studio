@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hope On Studio — Engine Demo</title>
+    <link rel="stylesheet" href="/src/styles/tokens.css" />
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        background: var(--ink);
+        color: var(--fg);
+        font-family: var(--font-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      .demo-section {
+        position: relative;
+        min-height: 128vh;
+        padding: 12vh var(--gutter);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        color: var(--fg);
+        transition: background 600ms var(--ease-inout);
+      }
+      .demo-kicker {
+        font-size: var(--text-meta);
+        letter-spacing: var(--track-meta);
+        text-transform: uppercase;
+        color: var(--fg-soft);
+        margin-bottom: 1.4rem;
+      }
+      .demo-title {
+        font-family: var(--font-display);
+        font-size: var(--text-h2);
+        font-weight: 300;
+        letter-spacing: 0.01em;
+        text-align: center;
+        margin-bottom: 0.6rem;
+      }
+      .demo-note {
+        max-width: 46ch;
+        text-align: center;
+        color: var(--fg-soft);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 3rem;
+      }
+      .stage {
+        position: relative;
+        width: min(78vw, 900px);
+        aspect-ratio: 4 / 5;
+      }
+      .stage--wide {
+        aspect-ratio: 16 / 10;
+        width: min(88vw, 1100px);
+      }
+      .stage--bloom {
+        aspect-ratio: 16 / 9;
+        width: min(90vw, 1200px);
+      }
+      .editor-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        font-size: var(--text-meta);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--fg-soft);
+      }
+      input[type='range'] {
+        width: min(60vw, 420px);
+        accent-color: var(--champagne);
+      }
+      .intro {
+        min-height: 60vh;
+        justify-content: flex-end;
+        padding-bottom: 6vh;
+      }
+      .intro .demo-title {
+        font-size: var(--text-hero);
+        font-weight: 300;
+      }
+    </style>
+  </head>
+  <body data-ground="ink">
+    <main id="demo"></main>
+    <script type="module" src="/src/engine/demo.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,136 @@
+/* ============================================================
+   Motion layer styles — cursor, marquee, ghost headings, scatter
+   words. Tokens only; no hard-coded colors. See DESIGN.md §5.
+   ============================================================ */
+
+/* ---------- Custom cursor ---------- */
+
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  translate: -50% -50%;
+  pointer-events: none;
+  z-index: var(--z-cursor);
+  opacity: 0;
+  visibility: hidden;
+  mix-blend-mode: exclusion;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--champagne);
+}
+
+.cursor-ring {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--champagne);
+  transition: width 0.35s var(--ease-out), height 0.35s var(--ease-out), border-color 0.35s var(--ease-out);
+}
+
+.cursor-ring--link {
+  width: 52px;
+  height: 52px;
+}
+
+.cursor-ring--badge {
+  width: 72px;
+  height: 72px;
+  border-color: transparent;
+  background: rgba(216, 201, 168, 0.08);
+}
+
+.cursor-ring__badge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.cursor-ring--badge .cursor-ring__badge {
+  opacity: 1;
+}
+
+.cursor-ring__badge-text {
+  font-family: var(--font-ui);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  fill: var(--champagne);
+}
+
+/* ---------- Ghost headings ("ABOUT US / ABOUT US") ---------- */
+
+.ghost-heading {
+  position: relative;
+  isolation: isolate;
+}
+
+.ghost-heading__echo {
+  position: absolute;
+  inset: 0;
+  top: 0.12em;
+  left: 0;
+  z-index: -1;
+  opacity: 0.14;
+  color: currentColor;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+}
+
+/* ---------- Scatter words ---------- */
+
+.scatter-word {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ---------- Marquee ---------- */
+
+.marquee {
+  overflow: hidden;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.marquee__track {
+  display: inline-flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee__set {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ---------- Split line masks (entrance choreography) ---------- */
+
+.split-line,
+[class$='-mask'] {
+  overflow: clip;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
+  }
+}

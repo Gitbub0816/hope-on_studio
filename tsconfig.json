@@ -9,13 +9,13 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": ".",
+    "types": ["vite/client"],
     "paths": {
-      "@shared/*": ["shared/*"],
-      "@engine/*": ["site/src/engine/*"],
-      "@motion/*": ["site/src/motion/*"],
-      "@blocks/*": ["site/src/blocks/*"],
-      "@styles/*": ["site/src/styles/*"]
+      "@shared/*": ["./shared/*"],
+      "@engine/*": ["./site/src/engine/*"],
+      "@motion/*": ["./site/src/motion/*"],
+      "@blocks/*": ["./site/src/blocks/*"],
+      "@styles/*": ["./site/src/styles/*"]
     }
   },
   "include": ["site/src", "shared", "admin/src"],
