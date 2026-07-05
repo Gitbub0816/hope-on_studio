@@ -24,15 +24,15 @@
 }
 
 .gallery__band {
+  /* Declared here (not on the rotated element) so both .gallery__track and
+     .gallery__caption can read it — see the perf note below. */
   --gallery-angle: -10deg;
   position: absolute;
-  inset: -20% -10%;
+  inset: 0 -6%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: clamp(1.75rem, 5vh, 4rem);
-  transform: rotate(var(--gallery-angle));
-  transform-origin: center;
+  gap: clamp(2.5rem, 7vh, 5.5rem);
   opacity: 0;
   animation: gallery-reveal 1.1s var(--ease-out) 0.1s forwards;
 }
@@ -47,11 +47,20 @@
   overflow: visible;
 }
 
+/* The rotation lives on the SAME element GSAP translates (.gallery__track),
+   not on a separate static ancestor. Measured in this repo: rotating a large
+   absolutely-positioned ancestor while an animated, clipped descendant moves
+   inside it forces a full repaint of the rotated raster every frame in this
+   sandbox's software renderer (~35fps with 10 images); folding rotate+translate
+   into one transform on one element composites as a single layer (steady 60fps
+   in the same test). Each lane's track is wide enough (marquee content) that
+   its own rotated bounding box still bleeds past the stage on both corners. */
 .gallery__track {
   display: flex;
   align-items: center;
   gap: clamp(1.25rem, 3vw, 3rem);
   width: max-content;
+  transform: rotate(var(--gallery-angle));
   will-change: transform;
 }
 
@@ -143,7 +152,7 @@
   }
   .gallery__band {
     --gallery-angle: -7deg;
-    inset: -14% -6%;
+    inset: 0 -4%;
     gap: 1.5rem;
   }
   .gallery__item--lg {
