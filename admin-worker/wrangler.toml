@@ -1,0 +1,23 @@
+#:schema ../node_modules/wrangler/config-schema.json
+# Admin editor worker — deploy with:
+#   npm run build:admin
+#   npx wrangler deploy --config admin-worker/wrangler.toml
+#
+# Protect this worker's hostname with Cloudflare Access:
+#   Workers & Pages -> hope-on-studio-admin -> Settings -> Domains & Routes ->
+#   workers.dev -> Enable Access   (or add a Zero Trust self-hosted app for
+#   admin.<your-domain> if you attach a custom domain).
+name = "hope-on-studio-admin"
+main = "index.ts"
+compatibility_date = "2026-07-01"
+
+[assets]
+directory = "../dist/admin"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+# Service binding to the main worker (site + API + media). Deploy the main
+# worker first so this name resolves.
+[[services]]
+binding = "SITE"
+service = "hope-on-studio"
