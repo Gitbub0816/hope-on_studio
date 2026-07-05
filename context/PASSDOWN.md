@@ -17,6 +17,16 @@
 
 ---
 
+## 2026-07-05 (DEPLOYED) — Both workers live on workers.dev
+
+**Live URLs:** site https://hope-on-studio.caleb-owen2019.workers.dev ·
+admin https://hope-on-studio-admin.caleb-owen2019.workers.dev
+Verified: pages 200, /api serves seeded D1 content, admin proxies /api via
+service binding, prod auth 401s without Access. **Pending:** owner enables
+Access on the admin worker (Workers & Pages → hope-on-studio-admin →
+Settings → Domains & Routes → workers.dev → Enable Access) — publish/save
+return 401 until then. Owner should roll the API token shared in chat.
+
 ## 2026-07-05 (deploy prep) — Cloudflare resources provisioned, pushed to main
 
 **Done:** Pushed full history to `main` (owner-authorized). Provisioned via the
