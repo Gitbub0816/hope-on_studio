@@ -28,3 +28,6 @@ export type {
   BloomIntensity,
   BloomTrigger,
 } from './bloom';
+
+export { vinesLayer } from './vines';
+export type { VinesOptions, VinesHandle, VineDensity, VineZone } from './vines';

@@ -39,7 +39,8 @@
 }
 
 .lost__kicker {
-  color: var(--champagne);
+  /* Champagne alone is ~2.8:1 on the light grounds — deepen toward ink. */
+  color: color-mix(in srgb, var(--champagne) 62%, var(--ink) 38%);
   margin-bottom: 0.4rem;
 }
 
@@ -48,12 +49,12 @@
   font-weight: 340;
   line-height: 0.86;
   letter-spacing: -0.01em;
-  color: rgba(242, 236, 225, 0.96);
+  color: var(--fg);
 }
 
 .lost__whisper {
   font-size: clamp(1.15rem, 2.2vw, 1.6rem);
-  color: rgba(242, 236, 225, 0.75);
+  color: var(--fg-soft);
   max-width: 32ch;
   margin-top: 0.4rem;
 }
@@ -64,10 +65,12 @@
   font-family: var(--font-display);
   font-weight: 340;
   font-size: clamp(1.3rem, 2.6vw, 1.8rem);
-  color: var(--champagne);
+  color: color-mix(in srgb, var(--champagne) 78%, var(--ink) 22%);
   will-change: transform;
   transition: color 0.4s var(--ease-out);
 }
 .lost__home:hover {
-  color: var(--cream);
+  /* Was --cream (near-white) — invisible against the light ground since the
+     redirect. Deepen to plain ink for a clear, readable hover state. */
+  color: var(--ink);
 }

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hope On Studio — Vines Layer Demo</title>
+    <link rel="stylesheet" href="/src/styles/tokens.css" />
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: auto;
+      }
+      body {
+        background: var(--cream); /* near-white sage #F3F6EF */
+        color: var(--ink);
+        font-family: var(--font-ui);
+        -webkit-font-smoothing: antialiased;
+      }
+      .panel {
+        position: relative;
+        min-height: 100vh;
+        padding: 8vh var(--gutter);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+      }
+      .panel--tint {
+        background: var(--sage-tint);
+      }
+      .stage {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+      }
+      .caption {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        pointer-events: none;
+        max-width: 52ch;
+      }
+      .kicker {
+        font-size: var(--text-meta);
+        letter-spacing: var(--track-meta);
+        text-transform: uppercase;
+        color: var(--fg-soft);
+        margin-bottom: 1.2rem;
+      }
+      .title {
+        font-family: var(--font-display);
+        font-size: var(--text-h2);
+        font-weight: 300;
+        letter-spacing: 0.01em;
+        margin-bottom: 0.6rem;
+      }
+      .note {
+        color: var(--fg-soft);
+        font-size: 0.94rem;
+        line-height: 1.6;
+      }
+      #fps {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        z-index: 99;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="fps">fps —</div>
+    <main id="demo"></main>
+    <script type="module" src="/src/engine/vines-demo.ts"></script>
+  </body>
+</html>

@@ -72,7 +72,7 @@ export const hero: BlockRenderer<HeroProps> = {
         const handle = particleImage(host, {
           src: props.image.src,
           variant: 'assemble',
-          palette: 'dark',
+          palette: 'auto',
         });
         destroy = handle.destroy;
       })

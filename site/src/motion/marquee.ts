@@ -32,6 +32,21 @@ export function marquee(el: HTMLElement): void {
   clone.setAttribute('aria-hidden', 'true');
   track.append(clone);
 
+  // "Everything more animated" — a cheap perpetual wave: each word bobs on a
+  // staggered sine, transform-only. Skipped entirely under reduced motion
+  // (guarded above by the early return).
+  const words = Array.from(track.querySelectorAll<HTMLElement>('.marquee__word'));
+  if (words.length) {
+    gsap.to(words, {
+      yPercent: -8,
+      duration: 2.4,
+      ease: 'sine.inOut',
+      yoyo: true,
+      repeat: -1,
+      stagger: { each: 0.12, from: 'start' },
+    });
+  }
+
   let tween: gsap.core.Tween;
 
   const build = () => {

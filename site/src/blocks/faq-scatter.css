@@ -63,13 +63,21 @@
   inset: 50% 0 auto 0;
   height: 1px;
   background: var(--fg-soft);
-  transition: transform 0.45s var(--ease-out);
+  transition: transform 0.45s var(--ease-out), background-color 0.4s var(--ease-out);
 }
 .faq__icon::after {
   transform: rotate(90deg);
 }
 .faq__item--open .faq__icon::after {
   transform: rotate(0deg);
+}
+/* A small vivid grace note on open — the "+" becomes a live vine accent
+   (DESIGN.md top banner §2: tasteful small vivid accents are allowed now). */
+.faq__q:hover .faq__icon::before,
+.faq__q:hover .faq__icon::after,
+.faq__item--open .faq__icon::before,
+.faq__item--open .faq__icon::after {
+  background: var(--vine-teal);
 }
 
 .faq__a-wrap {

@@ -1,0 +1,31 @@
+<!doctype html>
+<html><body style="margin:0;background:#eee;overflow:hidden;">
+<div id="track" style="display:flex;gap:24px;will-change:transform;">
+</div>
+<script>
+  const track = document.getElementById('track');
+  for (let i=0;i<20;i++){
+    const img = document.createElement('img');
+    img.src = '/assets/art/gallery-0' + ((i%5)+1) + '.jpg';
+    img.style.width='400px'; img.style.height='300px'; img.style.objectFit='cover';
+    img.style.border='1px solid green'; img.style.borderRadius='3px';
+    img.style.boxShadow = '0 22px 46px -28px rgba(35,40,32,0.35)';
+    track.appendChild(img);
+  }
+  let x = 0;
+  function anim(){
+    x -= 2;
+    track.style.transform = 'translateX(' + x + 'px) rotate(-10deg)';
+    requestAnimationFrame(anim);
+  }
+  requestAnimationFrame(anim);
+  window.__fpsProbe = () => new Promise((resolve) => {
+    const results = []; let bucketStart = performance.now(); let frames = 0; const overallStart = performance.now();
+    function tick(){ frames++; const now = performance.now();
+      if (now - bucketStart >= 1000){ results.push(+(frames/((now-bucketStart)/1000)).toFixed(1)); frames=0; bucketStart=now; }
+      if (now - overallStart < 4000) requestAnimationFrame(tick); else resolve(results);
+    }
+    requestAnimationFrame(tick);
+  });
+</script>
+</body></html>

@@ -1,4 +1,6 @@
-/* contact-card — art-directed cream card on ink */
+/* contact-card — art-directed cream card, a shade lighter than its section
+   ground so it still reads as a distinct raised surface now both grounds
+   are light. */
 
 .contact__inner {
   display: grid;
@@ -10,14 +12,16 @@
   width: min(100%, 54rem);
   padding: clamp(2rem, 5vw, 4rem);
   background: var(--cream);
-  border: 1px solid rgba(25, 23, 20, 0.16);
+  border: 1px solid var(--line);
   border-radius: 2px;
   color: var(--ink);
   text-align: center;
-  box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.7);
+  /* A soft, warm-tinted elevation (ink, not pure black) — reads as lifted
+     paper rather than a heavy dark smudge on the light ground. */
+  box-shadow: 0 30px 70px -42px rgba(35, 40, 31, 0.32), 0 10px 26px -14px rgba(35, 40, 31, 0.16);
 }
 .contact__card .kicker {
-  color: #6f6758;
+  color: var(--fg-soft);
   justify-content: center;
 }
 
@@ -28,7 +32,7 @@
   font-family: var(--font-ui);
   font-size: var(--text-meta);
   letter-spacing: 0.24em;
-  color: #6f6758;
+  color: var(--fg-soft);
 }
 
 .contact__heading {
@@ -42,7 +46,7 @@
 .contact__rule {
   width: min(100%, 16rem);
   margin: clamp(1.6rem, 3.5vh, 2.6rem) auto;
-  border-color: rgba(25, 23, 20, 0.16);
+  border-color: var(--line);
 }
 
 .contact__email-wrap {
@@ -71,7 +75,7 @@
 }
 .contact__social {
   position: relative;
-  color: #6f6758;
+  color: var(--fg-soft);
   transition: color 0.4s var(--ease-out);
 }
 .contact__social::after {
@@ -92,4 +96,27 @@
 .contact__social:hover::after {
   transform: scaleX(1);
   transform-origin: left center;
+}
+
+/* Subtle "breathing" idle — a slow, near-imperceptible scale pulse standing
+   in for a breathing shadow (transform is the GPU-cheap route; the box-
+   shadow itself stays static). */
+@keyframes contact-card-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.006);
+  }
+}
+.contact__card {
+  animation: contact-card-breathe 6.5s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact__card {
+    animation: none;
+  }
 }

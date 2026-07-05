@@ -24,7 +24,7 @@
     transform 0.6s var(--ease-out);
 }
 .triptych__panel:hover {
-  border-color: rgba(216, 201, 168, 0.5);
+  border-color: rgba(176, 143, 69, 0.5);
 }
 /* Siblings dim while one panel is hovered */
 .triptych__grid:hover .triptych__panel:not(:hover) {
@@ -40,7 +40,7 @@
   font-weight: 300;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(216, 201, 168, 0.28);
+  -webkit-text-stroke: 1px rgba(176, 143, 69, 0.32);
   pointer-events: none;
 }
 
@@ -66,7 +66,9 @@
   opacity: 0.68;
   transform: scale(1.04);
 }
-/* Gradient so the caption always reads over the image */
+/* Gradient so the caption always reads over the image. This is the one place
+   true dark survives on the light ground: framed photography (DESIGN.md top
+   banner §1) — rgb(25,23,20) is --preloader-ink, the reserved dark token. */
 .triptych__media::after {
   content: '';
   position: absolute;
@@ -90,13 +92,13 @@
   font-size: clamp(1.9rem, 3vw, 2.8rem);
   font-weight: 330;
   line-height: 1;
-  color: rgba(242, 236, 225, 0.96);
+  color: rgba(243, 246, 239, 0.97);
 }
 .triptych__tag {
   margin-top: 0.6rem;
   font-size: clamp(1.05rem, 1.4vw, 1.35rem);
   line-height: 1.4;
-  color: rgba(242, 236, 225, 0.72);
+  color: rgba(243, 246, 239, 0.76);
   max-width: 24ch;
 }
 
@@ -137,5 +139,39 @@
   .triptych__enter {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* "Everything more animated" (owner note, DESIGN.md top banner §3) — a
+   perpetual, GPU-cheap idle bob (transform only) on each panel, staggered so
+   the three don't sync up. Panel hover already animates its own transform
+   only via the image/enter children, so this doesn't fight anything. */
+@keyframes triptych-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.triptych__panel {
+  animation: triptych-bob 7.5s ease-in-out infinite;
+}
+.triptych__panel:nth-child(1) {
+  animation-delay: 0s;
+}
+.triptych__panel:nth-child(2) {
+  animation-duration: 8.6s;
+  animation-delay: -2.4s;
+}
+.triptych__panel:nth-child(3) {
+  animation-duration: 6.9s;
+  animation-delay: -4.8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .triptych__panel {
+    animation: none;
   }
 }

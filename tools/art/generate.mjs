@@ -30,13 +30,21 @@ fs.mkdirSync(OUT_TEX, { recursive: true });
 // ---------------------------------------------------------------------------
 const INK = '#191714';
 const INK_SOFT = '#242019';
-const CREAM = '#F2ECE1';
-const CREAM_DEEP = '#E7DECD';
+// v2 "Light Sage World" — owner redirect (context/DESIGN.md top banner):
+// the site ground is near-white sage; these two match site/src/styles/tokens.css
+// exactly so generated art sits flush with the live page background.
+const CREAM = '#F3F6EF';
+const CREAM_DEEP = '#E9EFE0';
+const SAGE_TINT = '#E4EBDA';
+const SAGE_TINT_DEEP = '#D9E2CB';
 const SAGE = '#8A9484';
 const CLAY = '#B08D7A';
 const STONE = '#A8A196';
 const CHAMPAGNE = '#D8C9A8';
 const BLOOM = { peony: '#E86A8A', coral: '#F2917B', iris: '#9B7FC7', gold: '#F0C36B' };
+// The vivid vine-flower family (DESIGN.md top banner + tokens.css --vine-*).
+// Reserved for accents/pops against the light sage ground — never a full ground.
+const VINE = { fuchsia: '#D6479B', violet: '#8A63D2', teal: '#2FB5AE', marigold: '#E9A13B', leaf: '#4C9A63' };
 
 // ---------------------------------------------------------------------------
 // Fonts — reference installed @fontsource packages directly via file:// URLs.
@@ -202,6 +210,7 @@ function bouquet(rng, baseX, baseY, opts = {}) {
     stems = 7, spread = 46, minLen = 300, maxLen = 560, stemColor = CHAMPAGNE,
     bloomColors = [CLAY, mix(SAGE, CLAY, 0.4), STONE], lightAngle = -70,
     bloomScale = 1, leafColor, bloomEvery = 0.72, whisperHue = null,
+    whisperChance = 0.28, whisperMix = 0.5,
   } = opts;
   let g = '';
   const order = [];
@@ -217,8 +226,9 @@ function bouquet(rng, baseX, baseY, opts = {}) {
     g += br.g;
     if (rng() < bloomEvery) {
       const R = len * rf(rng, 0.14, 0.22) * bloomScale;
-      const useWhisper = whisperHue && rng() < 0.28;
-      const col = useWhisper ? mix(pick(rng, bloomColors), whisperHue, 0.5) : pick(rng, bloomColors);
+      const useWhisper = whisperHue && rng() < whisperChance;
+      const whisperCol = Array.isArray(whisperHue) ? pick(rng, whisperHue) : whisperHue;
+      const col = useWhisper ? mix(pick(rng, bloomColors), whisperCol, whisperMix) : pick(rng, bloomColors);
       if (rng() < 0.72) g += rosette(rng, br.tip[0], br.tip[1], R, { baseColor: col, coreColor: CHAMPAGNE, rings: ri(rng, 3, 4), basePetals: ri(rng, 11, 15), lightAngle });
       else g += bud(rng, br.tip[0], br.tip[1], R * 0.7, col);
     } else {
@@ -234,13 +244,22 @@ function bouquet(rng, baseX, baseY, opts = {}) {
 // opacity + scale falloff, so it reads as a lush moonlit meadow, never sparse.
 // ---------------------------------------------------------------------------
 function botanicalField(rng, w, h, opts = {}) {
-  const { baseY, bands = 3, perBand = 11, stemColor = STONE, bloomColors = [SAGE, CLAY], whisperHue = null } = opts;
+  const {
+    baseY, bands = 3, perBand = 11, stemColor = STONE, bloomColors = [SAGE, CLAY], whisperHue = null,
+    // groundMode 'dark' (default) = old behaviour: far band inks toward near-black,
+    // near band stays lighter (reads against a dark sky). groundMode 'light' inverts
+    // this so the field reads as a dark-on-light silhouette against a pale sage ground:
+    // near band goes deep ink-sage, far band fades toward the background.
+    groundMode = 'dark', inkColor = INK, whisperChance = 0.22, whisperMix = 0.5,
+  } = opts;
   let g = '';
   for (let band = 0; band < bands; band++) {
     const depth = bands <= 1 ? 1 : band / (bands - 1); // 0 far … 1 near
     const op = 0.30 + depth * 0.55;
     const scale = 0.7 + depth * 0.8;
-    const col = mix(stemColor, INK, (1 - depth) * 0.38);
+    const col = groundMode === 'light'
+      ? mix(stemColor, inkColor, 0.12 + depth * 0.72)
+      : mix(stemColor, INK, (1 - depth) * 0.38);
     const n = Math.round(perBand * (0.75 + depth * 0.6));
     const useBlur = band < bands - 1;
     let layer = `<g opacity="${op.toFixed(2)}"${useBlur ? ` filter="url(#fieldBlur${band})"` : ''}>`;
@@ -256,8 +275,9 @@ function botanicalField(rng, w, h, opts = {}) {
       layer += br.g;
       if (depth > 0.28 && rng() < 0.55) {
         const R = len * rf(rng, 0.12, 0.2);
-        const useWhisper = whisperHue && rng() < 0.22;
-        const col2 = useWhisper ? mix(pick(rng, bloomColors), whisperHue, 0.5) : mix(pick(rng, bloomColors), col, 0.25);
+        const useWhisper = whisperHue && rng() < whisperChance;
+        const whisperCol = Array.isArray(whisperHue) ? pick(rng, whisperHue) : whisperHue;
+        const col2 = useWhisper ? mix(pick(rng, bloomColors), whisperCol, whisperMix) : mix(pick(rng, bloomColors), col, 0.25);
         layer += rosette(rng, br.tip[0], br.tip[1], R, { baseColor: col2, coreColor: mix(CHAMPAGNE, col, 0.3), rings: 3, basePetals: ri(rng, 9, 12), opacity: 0.92, lightStrength: 0.3 + depth * 0.2 });
       } else {
         layer += `<circle cx="${br.tip[0]}" cy="${br.tip[1]}" r="${(len * 0.022).toFixed(1)}" fill="${mix(col, CHAMPAGNE, 0.35)}" opacity="0.8"/>`;
@@ -412,44 +432,64 @@ function clothDef() {
 // Scene builders
 // ===========================================================================
 
-// --- Landing hero: a lush, moonlit botanical FIELD across the full width -----
+// --- Landing hero: a lush LIGHT botanical meadow across the full width ------
+// v2 rework (DESIGN.md top banner): the landing hero particle field must read
+// as pale sage ground with a strong dark-on-light meadow silhouette (the
+// halftone engine samples luminance, so this contrast band structure matters
+// as much as the final look) plus a generous scatter of vivid vine-color
+// blossoms threaded through — no dark sky mass anywhere in this composition.
 function sceneHeroBloomField(rng, w, h) {
   const bands = 3;
+  // a deep GREEN-ink (not the warm near-black INK) so the silhouette reads as
+  // sage-ink, not brown-gray, against the pale sage field
+  const meadowInk = mix(SAGE, '#1B2417', 0.7);
+  const vineHues = [VINE.fuchsia, VINE.violet, VINE.teal, VINE.marigold];
   let defs = grainFilter('grain', 77, 0.9) + fieldBlurDefs(bands)
-    + directionalLight('moon', w, h, w * 0.62, h * 0.30, '70%', CHAMPAGNE, 0.30)
-    + directionalLight('moonCore', w, h, w * 0.62, h * 0.28, '30%', CREAM, 0.22)
-    + groundShade('gs', w, h, INK, 0.42) + blurFilter('sb', 8);
-  // vertical moonlit gradient sky
+    + directionalLight('sun', w, h, w * 0.64, h * 0.2, '65%', CHAMPAGNE, 0.22)
+    + groundShade('gs', w, h, SAGE_TINT_DEEP, 0.2) + blurFilter('sb', 8);
+  // pale sage sky — near-white at top, settling to a soft sage tint at the ground
   defs += `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${mix(INK, INK_SOFT, 0.3)}"/>
-    <stop offset="45%" stop-color="${INK_SOFT}"/>
-    <stop offset="100%" stop-color="${INK}"/>
+    <stop offset="0%" stop-color="${CREAM}"/>
+    <stop offset="52%" stop-color="${mix(CREAM, SAGE_TINT, 0.55)}"/>
+    <stop offset="100%" stop-color="${SAGE_TINT_DEEP}"/>
   </linearGradient>`;
   let body = `<rect width="${w}" height="${h}" fill="url(#sky)"/>`;
-  body += `<rect width="${w}" height="${h}" fill="url(#moon)"/>`;
-  body += `<ellipse cx="${w * 0.62}" cy="${h * 0.28}" rx="${w * 0.05}" ry="${w * 0.05}" fill="url(#moonCore)"/>`;
-  // faraway drifting motes high in the frame
-  body += scatter(rng, w, h, 10, [STONE, CLAY, CHAMPAGNE], { yMin: 0.12, yMax: 0.5, size: 9, op: 0.32, blurId: 'sb' });
-  // the field itself, rising from ~58% height, full width, three depths
-  body += botanicalField(rng, w, h, { baseY: h * 0.98, bands, perBand: 12, stemColor: STONE, bloomColors: [SAGE, CLAY, CHAMPAGNE], whisperHue: BLOOM.peony });
-  // a couple of nearer, sharper focal blooms catching the moon
-  body += rosette(rng, w * 0.30, h * 0.66, h * 0.052, { baseColor: mix(CLAY, CREAM, 0.15), coreColor: CHAMPAGNE, rings: 4, basePetals: 15, lightAngle: -60, lightStrength: 0.5 });
-  body += rosette(rng, w * 0.71, h * 0.72, h * 0.045, { baseColor: mix(SAGE, CLAY, 0.5), coreColor: CHAMPAGNE, rings: 4, basePetals: 13, lightAngle: -60, lightStrength: 0.5 });
-  // faint bloom-hue whispers on a single blossom cluster
-  body += `<g filter="url(#sb)" opacity="0.5">`
-    + rosette(rng, w * 0.5, h * 0.7, h * 0.03, { baseColor: mix(CLAY, BLOOM.peony, 0.4), coreColor: BLOOM.gold, rings: 3, basePetals: 11, opacity: 0.5 }) + `</g>`;
-  body += scatter(rng, w, h, 12, [STONE, CLAY, mix(CLAY, BLOOM.peony, 0.3)], { yMin: 0.55, yMax: 0.95, size: 13, op: 0.4 });
+  body += `<rect width="${w}" height="${h}" fill="url(#sun)"/>`;
+  // faraway drifting motes high in the frame, muted
+  body += scatter(rng, w, h, 10, [STONE, CLAY, mix(CREAM, SAGE, 0.35)], { yMin: 0.1, yMax: 0.46, size: 8, op: 0.3, blurId: 'sb' });
+  // the meadow silhouette — full width, three depths, strong dark-on-light
+  // structure for the halftone engine, with vivid vine blossoms threaded in
+  body += botanicalField(rng, w, h, {
+    baseY: h * 0.99, bands, perBand: 13, stemColor: mix(SAGE, STONE, 0.22),
+    groundMode: 'light', inkColor: meadowInk,
+    bloomColors: [SAGE, mix(SAGE, CLAY, 0.35), mix(SAGE, meadowInk, 0.3)],
+    whisperHue: vineHues, whisperChance: 0.24, whisperMix: 0.88,
+  });
+  // a couple of nearer, sharper focal blooms — one vivid, one muted sage
+  body += rosette(rng, w * 0.30, h * 0.64, h * 0.054, { baseColor: mix(VINE.violet, CREAM, 0.08), coreColor: CHAMPAGNE, rings: 4, basePetals: 15, lightAngle: -60, lightStrength: 0.42 });
+  body += rosette(rng, w * 0.71, h * 0.70, h * 0.048, { baseColor: mix(SAGE, meadowInk, 0.35), coreColor: CHAMPAGNE, rings: 4, basePetals: 13, lightAngle: -60, lightStrength: 0.42 });
+  // a small cluster of clearly vivid vine-color blossoms threaded through the mid-field
+  body += rosette(rng, w * 0.5, h * 0.685, h * 0.032, { baseColor: VINE.marigold, coreColor: mix(CREAM, VINE.marigold, 0.3), rings: 3, basePetals: 11, opacity: 0.94 });
+  body += rosette(rng, w * 0.42, h * 0.79, h * 0.024, { baseColor: VINE.teal, coreColor: CREAM, rings: 3, basePetals: 10, opacity: 0.92 });
+  body += rosette(rng, w * 0.86, h * 0.8, h * 0.026, { baseColor: VINE.fuchsia, coreColor: CREAM, rings: 3, basePetals: 10, opacity: 0.92 });
+  // scattered petals resting low in the grass — a minority (~1 in 6-7) vivid
+  body += scatter(rng, w, h, 15, [mix(SAGE, CLAY, 0.3), STONE, mix(STONE, INK, 0.1), VINE.fuchsia, VINE.marigold], { yMin: 0.6, yMax: 0.97, size: 12, op: 0.55 });
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
-  body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.05"/>`;
-  body += metaText(w * 0.06, h * 0.08, 'Hope On Studio — Est. 2026', { size: 15, color: CHAMPAGNE, tracking: 3 });
+  body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.045"/>`;
+  body += metaText(w * 0.06, h * 0.08, 'Hope On Studio — Est. 2026', { size: 15, color: mix(STONE, INK, 0.25), tracking: 3 });
   body += metaText(w * 0.94, h * 0.08, '01 / 04', { size: 15, color: STONE, tracking: 2, anchor: 'end' });
   return page(w, h, body, defs);
 }
 
 // --- Photography hero: a moody window still-life (readable subject) ----------
+// v2: keeps its chiaroscuro drama (these are the "prints"/halftone particle
+// sources) but the shadow floor is lifted a touch so it doesn't read as a
+// black hole floating on the light sage page, plus a vivid vine whisper in
+// the bouquet.
 function sceneWindowStill(rng, w, h, { label = 'Photography', index = null } = {}) {
+  const floor = mix(INK, STONE, 0.14); // lifted from pure INK
   let defs = grainFilter('grain', ri(rng, 1, 999), 0.75) + blurFilter('sb', 10) + blurFilter('sbBig', 26)
-    + groundShade('gs', w, h, INK, 0.5)
+    + groundShade('gs', w, h, floor, 0.34)
     + directionalLight('pool', w, h, w * 0.40, h * 0.5, '55%', CHAMPAGNE, 0.14);
   // window mullion light: a bright warm rectangle up-left = the LIGHT mass
   const winX = w * 0.08, winY = h * 0.05, winW = w * 0.44, winH = h * 0.6;
@@ -459,20 +499,20 @@ function sceneWindowStill(rng, w, h, { label = 'Photography', index = null } = {
     <stop offset="100%" stop-color="${CHAMPAGNE}" stop-opacity="0.12"/>
   </linearGradient>`;
   defs += `<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0%" stop-color="${mix(INK_SOFT, CHAMPAGNE, 0.12)}"/>
-    <stop offset="55%" stop-color="${INK_SOFT}"/>
-    <stop offset="100%" stop-color="${INK}"/>
+    <stop offset="0%" stop-color="${mix(INK_SOFT, CHAMPAGNE, 0.16)}"/>
+    <stop offset="55%" stop-color="${mix(INK_SOFT, STONE, 0.1)}"/>
+    <stop offset="100%" stop-color="${floor}"/>
   </linearGradient>`;
   // table plane
   const tableY = h * 0.68;
   defs += `<linearGradient id="table" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${mix(INK_SOFT, CHAMPAGNE, 0.22)}"/>
-    <stop offset="100%" stop-color="${INK}"/>
+    <stop offset="0%" stop-color="${mix(INK_SOFT, CHAMPAGNE, 0.24)}"/>
+    <stop offset="100%" stop-color="${floor}"/>
   </linearGradient>`;
   defs += `<linearGradient id="vase" x1="0" y1="0" x2="1" y2="0">
-    <stop offset="0%" stop-color="${mix(STONE, INK, 0.35)}"/>
-    <stop offset="42%" stop-color="${mix(INK_SOFT, STONE, 0.2)}"/>
-    <stop offset="100%" stop-color="${INK}"/>
+    <stop offset="0%" stop-color="${mix(STONE, INK, 0.3)}"/>
+    <stop offset="42%" stop-color="${mix(INK_SOFT, STONE, 0.22)}"/>
+    <stop offset="100%" stop-color="${floor}"/>
   </linearGradient>`;
 
   let body = `<rect width="${w}" height="${h}" fill="url(#bg)"/>`;
@@ -496,14 +536,15 @@ function sceneWindowStill(rng, w, h, { label = 'Photography', index = null } = {
   body += `<path d="M ${vx - vw / 2} ${vy} Q ${vx - vw * 0.62} ${vy + vh * 0.5} ${vx - vw * 0.4} ${vy + vh} L ${vx + vw * 0.4} ${vy + vh} Q ${vx + vw * 0.62} ${vy + vh * 0.5} ${vx + vw / 2} ${vy} Z" fill="url(#vase)"/>`;
   body += `<ellipse cx="${vx}" cy="${vy}" rx="${vw / 2}" ry="${vw * 0.12}" fill="${INK}" opacity="0.9"/>`;
   body += `<path d="M ${vx - vw / 2} ${vy} Q ${vx - vw * 0.62} ${vy + vh * 0.5} ${vx - vw * 0.4} ${vy + vh}" stroke="${mix(CHAMPAGNE, STONE, 0.3)}" stroke-width="2.5" fill="none" opacity="0.5"/>`;
-  // the bouquet — layered rosettes lit from the window (upper-left)
+  // the bouquet — layered rosettes lit from the window (upper-left), with a
+  // clearly vivid vine-fuchsia whisper (photography's signature hue)
   body += bouquet(rng, vx, vy + vh * 0.1, {
     stems: 9, spread: 52, minLen: h * 0.16, maxLen: h * 0.34, stemColor: mix(CHAMPAGNE, INK, 0.35),
     bloomColors: [mix(CLAY, CREAM, 0.2), mix(SAGE, CLAY, 0.4), STONE, mix(CLAY, CREAM, 0.35)],
-    lightAngle: -125, bloomScale: 1.15, whisperHue: BLOOM.coral,
+    lightAngle: -125, bloomScale: 1.15, whisperHue: VINE.fuchsia, whisperChance: 0.4, whisperMix: 0.75,
   });
   // a couple of fallen petals & a stray leaf on the lit table
-  body += scatter(rng, w, h, 6, [mix(CLAY, CREAM, 0.2), STONE, mix(CLAY, BLOOM.coral, 0.3)], { yMin: 0.72, yMax: 0.9, size: 15, op: 0.6 });
+  body += scatter(rng, w, h, 6, [mix(CLAY, CREAM, 0.2), STONE, VINE.fuchsia], { yMin: 0.72, yMax: 0.9, size: 15, op: 0.6 });
   body += `<rect width="${w}" height="${h}" fill="url(#pool)"/>`;
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
   body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.06"/>`;
@@ -542,8 +583,11 @@ function sceneOutletCover(rng, w, h, { ground = 'cream', hue = 'iris', style = '
     // foreground arrangement rising toward upper third
     body += bouquet(rng, w * 0.5, h * 0.47, {
       stems: 10, spread: 52, minLen: h * 0.15, maxLen: h * 0.32, stemColor: mix(STONE, INK, 0.2),
-      bloomColors: petalCols, lightAngle: -120, bloomScale: 1.2, whisperHue: BLOOM[hue],
+      bloomColors: petalCols, lightAngle: -120, bloomScale: 1.2,
+      whisperHue: VINE[hue], whisperChance: 0.55, whisperMix: 0.82,
     });
+    // a clearly colored signature bloom (not a whisper) near the arrangement's apex
+    body += rosette(rng, w * 0.5, h * 0.2, h * 0.042, { baseColor: mix(VINE[hue], CREAM, 0.06), coreColor: CHAMPAGNE, rings: 4, basePetals: 14, lightAngle: -120, lightStrength: 0.4 });
     // open journal, page curvature via gradient
     const jw = w * 0.7, jh = h * 0.26, jx = (w - jw) / 2, jy = h * 0.62;
     defs += `<linearGradient id="pageL" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${CREAM_DEEP}"/><stop offset="88%" stop-color="${CREAM}"/><stop offset="100%" stop-color="${mix(CREAM_DEEP, INK, 0.12)}"/></linearGradient>`;
@@ -556,29 +600,33 @@ function sceneOutletCover(rng, w, h, { ground = 'cream', hue = 'iris', style = '
     // handwriting on the left page
     body += scriptLines(rng, jx + jw * 0.07, jy + jh * 0.3, jw * 0.36, 5, jh * 0.14, mix(STONE, INK, 0.15), 0.5);
     // pressed flower on the right page + a date line
-    body += pressedFlower(rng, jx + jw * 0.74, jy + jh * 0.42, jw * 0.05, mix(CLAY, BLOOM[hue], 0.35));
+    body += pressedFlower(rng, jx + jw * 0.74, jy + jh * 0.42, jw * 0.05, mix(CLAY, VINE[hue], 0.6));
     body += metaText(jx + jw * 0.6, jy + jh * 0.86, 'Marginalia — No. 4', { size: 11, color: STONE, tracking: 2 });
-    body += scatter(rng, w, h, 7, petalCols, { yMin: 0.5, yMax: 0.62, size: 13, op: 0.5 });
+    body += scatter(rng, w, h, 7, [...petalCols, VINE[hue]], { yMin: 0.5, yMax: 0.62, size: 13, op: 0.5 });
   } else if (style === 'stillLife') {
     // vase with a generous bouquet emerging from its mouth, cast shadow, light pool
     defs += `<linearGradient id="vase2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="${mix(STONE, INK, 0.4)}"/><stop offset="45%" stop-color="${INK_SOFT}"/><stop offset="100%" stop-color="${INK}"/></linearGradient>`;
     const vx = w * 0.5, vw = w * 0.17, vh = h * 0.2, vy = h * 0.66;
-    // light pool on the ground
-    body += `<g filter="url(#sbBig)"><ellipse cx="${vx}" cy="${vy + vh * 0.9}" rx="${w * 0.26}" ry="${h * 0.05}" fill="${CHAMPAGNE}" opacity="0.12"/></g>`;
+    // light pool on the ground (only meaningful on a dark ground)
+    if (dark) body += `<g filter="url(#sbBig)"><ellipse cx="${vx}" cy="${vy + vh * 0.9}" rx="${w * 0.26}" ry="${h * 0.05}" fill="${CHAMPAGNE}" opacity="0.12"/></g>`;
     // cast shadow
     body += `<g filter="url(#sbBig)"><ellipse cx="${vx + w * 0.09}" cy="${vy + vh * 0.98}" rx="${w * 0.2}" ry="${h * 0.028}" fill="${INK}" opacity="0.6"/></g>`;
-    // bouquet BEHIND rim (drawn first), rising from the vase mouth
+    // bouquet BEHIND rim (drawn first), rising from the vase mouth — a strong
+    // vivid vine whisper (photography's signature hue is fuchsia)
     body += bouquet(rng, vx, vy + vh * 0.06, {
       stems: 11, spread: 55, minLen: h * 0.16, maxLen: h * 0.34, stemColor: mix(CHAMPAGNE, INK, 0.4),
-      bloomColors: [mix(CLAY, CREAM, 0.2), mix(SAGE, CLAY, 0.4), STONE, CLAY], lightAngle: -115, bloomScale: 1.2, whisperHue: BLOOM[hue],
+      bloomColors: [mix(CLAY, CREAM, 0.2), mix(SAGE, CLAY, 0.4), STONE, CLAY], lightAngle: -115, bloomScale: 1.2,
+      whisperHue: VINE[hue], whisperChance: 0.55, whisperMix: 0.82,
     });
+    // a clearly colored signature bloom (not a whisper) near the top of the arrangement
+    body += rosette(rng, vx, vy - vh * 1.55, h * 0.045, { baseColor: mix(VINE[hue], CREAM, 0.06), coreColor: CHAMPAGNE, rings: 4, basePetals: 14, lightAngle: -115, lightStrength: 0.4 });
     // vase over the stem bases
     body += `<path d="M ${vx - vw / 2} ${vy} Q ${vx - vw * 0.6} ${vy + vh * 0.55} ${vx - vw * 0.34} ${vy + vh} L ${vx + vw * 0.34} ${vy + vh} Q ${vx + vw * 0.6} ${vy + vh * 0.55} ${vx + vw / 2} ${vy} Z" fill="url(#vase2)"/>`;
     body += `<ellipse cx="${vx}" cy="${vy}" rx="${vw / 2}" ry="${vw * 0.11}" fill="${INK}" opacity="0.85"/>`;
     body += `<path d="M ${vx - vw / 2} ${vy} Q ${vx - vw * 0.6} ${vy + vh * 0.55} ${vx - vw * 0.34} ${vy + vh}" stroke="${mix(CHAMPAGNE, STONE, 0.4)}" stroke-width="2.5" fill="none" opacity="0.45"/>`;
-    body += scatter(rng, w, h, 6, [mix(CLAY, CREAM, 0.2), STONE], { yMin: 0.82, yMax: 0.92, size: 14, op: 0.55 });
+    body += scatter(rng, w, h, 6, [mix(CLAY, CREAM, 0.2), STONE, VINE[hue]], { yMin: 0.82, yMax: 0.92, size: 14, op: 0.55 });
   } else if (style === 'blueprint') {
-    body += sceneBlueprintBody(rng, w, h, { title: 'Field Notes', numeral: 'L', dense: true, hue: BLOOM[hue] });
+    body += sceneBlueprintBody(rng, w, h, { title: 'Field Notes', numeral: 'L', dense: true, hue: VINE[hue] });
   }
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
   body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.05"/>`;
@@ -596,7 +644,7 @@ function sceneBookStack(rng, w, h) {
   body += `<rect width="${w}" height="${h}" fill="url(#spot)"/>`;
   // a tall botanical spray rising behind the stack (readable, gently soft)
   body += `<g filter="url(#sb)" opacity="0.6">`
-    + bouquet(rng, w * 0.68, h * 0.72, { stems: 8, spread: 40, minLen: h * 0.28, maxLen: h * 0.5, stemColor: mix(SAGE, STONE, 0.4), bloomColors: [SAGE, CLAY, STONE, mix(CLAY, CREAM, 0.2)], lightAngle: -120, bloomScale: 0.85, whisperHue: BLOOM.iris })
+    + bouquet(rng, w * 0.68, h * 0.72, { stems: 8, spread: 40, minLen: h * 0.28, maxLen: h * 0.5, stemColor: mix(SAGE, STONE, 0.4), bloomColors: [SAGE, CLAY, STONE, mix(CLAY, CREAM, 0.2)], lightAngle: -120, bloomScale: 0.85, whisperHue: VINE.violet, whisperChance: 0.3, whisperMix: 0.6 })
     + `</g>`;
   body += `<g filter="url(#sb)" opacity="0.4">`
     + bouquet(rng, w * 0.26, h * 0.74, { stems: 5, spread: 34, minLen: h * 0.2, maxLen: h * 0.36, stemColor: mix(SAGE, STONE, 0.4), bloomColors: [SAGE, STONE], lightAngle: -120, bloomScale: 0.7, bloomEvery: 0.6 })
@@ -630,7 +678,7 @@ function sceneBookStack(rng, w, h) {
   body += `<path d="M ${ox + ow / 2} ${oy + 6} Q ${ox + ow * 0.75} ${oy - 6} ${ox + ow} ${oy + 8} L ${ox + ow} ${oy + oh - 2} Q ${ox + ow * 0.75} ${oy + oh + 6} ${ox + ow / 2} ${oy + oh} Z" fill="url(#pageOpen)" stroke="${STONE}" stroke-width="1" opacity="0.98"/>`;
   body += `<line x1="${ox + ow / 2}" y1="${oy + 6}" x2="${ox + ow / 2}" y2="${oy + oh}" stroke="${mix(STONE, INK, 0.2)}" stroke-width="1.5" opacity="0.4"/>`;
   body += scriptLines(rng, ox + ow * 0.07, oy + oh * 0.32, ow * 0.34, 3, oh * 0.2, mix(STONE, INK, 0.15), 0.5);
-  body += pressedFlower(rng, ox + ow * 0.74, oy + oh * 0.44, ow * 0.045, mix(CLAY, BLOOM.iris, 0.3));
+  body += pressedFlower(rng, ox + ow * 0.74, oy + oh * 0.44, ow * 0.045, mix(CLAY, VINE.violet, 0.45));
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
   body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.04"/>`;
   body += metaText(w * 0.06, h * 0.08, 'Publishing', { size: 14, color: mix(STONE, INK, 0.2), tracking: 3 });
@@ -646,11 +694,12 @@ function scenePageSpread(rng, w, h, { variant = 'floral' } = {}) {
   body += `<rect width="${w}" height="${h}" fill="url(#glow)"/>`;
 
   if (variant === 'foilcover') {
-    body = `<rect width="${w}" height="${h}" fill="${INK_SOFT}"/>`;
+    // lifted a touch from pure INK_SOFT so the backdrop doesn't read as a black hole
+    body = `<rect width="${w}" height="${h}" fill="${mix(INK_SOFT, STONE, 0.16)}"/>`;
     defs += directionalLight('spot', w, h, w * 0.42, h * 0.3, '70%', CHAMPAGNE, 0.32);
     body += `<rect width="${w}" height="${h}" fill="url(#spot)"/>`;
     body += `<g filter="url(#sb)" opacity="0.4">`
-      + bouquet(rng, w * 0.5, h * 0.58, { stems: 7, spread: 46, minLen: h * 0.16, maxLen: h * 0.32, stemColor: mix(CHAMPAGNE, INK, 0.3), bloomColors: [SAGE, CLAY], lightAngle: -110, bloomScale: 0.9 })
+      + bouquet(rng, w * 0.5, h * 0.58, { stems: 7, spread: 46, minLen: h * 0.16, maxLen: h * 0.32, stemColor: mix(CHAMPAGNE, INK, 0.3), bloomColors: [SAGE, CLAY], lightAngle: -110, bloomScale: 0.9, whisperHue: VINE.violet, whisperChance: 0.3, whisperMix: 0.55 })
       + `</g>`;
     const bw = w * 0.6, bh = h * 0.74, bx = (w - bw) / 2, by = (h - bh) / 2;
     body += bookMockup(rng, { x: bx, y: by, w: bw, h: bh, fill: CLAY, foil: CHAMPAGNE, rot: 0, title: 'Hope On' });
@@ -669,10 +718,10 @@ function scenePageSpread(rng, w, h, { variant = 'floral' } = {}) {
     body += `<g filter="url(#sb)" opacity="0.6">`
       + bouquet(rng, w * 0.28, h * 0.56, { stems: 6, spread: 44, minLen: h * 0.12, maxLen: h * 0.26, stemColor: mix(STONE, CREAM, 0.15), bloomColors: petalCols, lightAngle: -120, bloomScale: 0.8 })
       + `</g>`;
-    body += bouquet(rng, w * 0.28, h * 0.52, { stems: 7, spread: 44, minLen: h * 0.14, maxLen: h * 0.3, stemColor: mix(STONE, INK, 0.15), bloomColors: petalCols, lightAngle: -120, bloomScale: 1.05, whisperHue: BLOOM.iris });
+    body += bouquet(rng, w * 0.28, h * 0.52, { stems: 7, spread: 44, minLen: h * 0.14, maxLen: h * 0.3, stemColor: mix(STONE, INK, 0.15), bloomColors: petalCols, lightAngle: -120, bloomScale: 1.05, whisperHue: VINE.violet, whisperChance: 0.35, whisperMix: 0.65 });
     body += metaText(w * 0.6, h * 0.2, 'A Field Journal', { size: 15, color: CLAY, tracking: 3 });
     body += scriptLines(rng, w * 0.6, h * 0.28, w * 0.32, 9, h * 0.05, mix(STONE, INK, 0.15), 0.45);
-    body += pressedFlower(rng, w * 0.82, h * 0.74, w * 0.045, mix(CLAY, BLOOM.peony, 0.3));
+    body += pressedFlower(rng, w * 0.82, h * 0.74, w * 0.045, mix(CLAY, VINE.fuchsia, 0.45));
   } else if (variant === 'dropcap') {
     body += `<text x="${w * 0.1}" y="${h * 0.6}" font-family="Fraunces" font-size="${h * 0.4}" fill="${INK}" opacity="0.92">H</text>`;
     body += scriptLines(rng, w * 0.42, h * 0.2, w * 0.46, 11, h * 0.05, mix(STONE, INK, 0.15), 0.45);
@@ -683,7 +732,7 @@ function scenePageSpread(rng, w, h, { variant = 'floral' } = {}) {
     body += metaText(w * 0.12, h * 0.13, 'Journal Prompt No. 4', { size: 14, color: CLAY, tracking: 3 });
     body += `<text x="${w * 0.12}" y="${h * 0.22}" font-family="Fraunces" font-style="italic" font-size="${h * 0.042}" fill="${INK}" opacity="0.85">What did you notice today?</text>`;
     body += scriptLines(rng, w * 0.12, h * 0.3, w * 0.76, 13, h * 0.042, mix(STONE, INK, 0.15), 0.42);
-    body += bouquet(rng, w * 0.86, h * 0.9, { stems: 5, spread: 42, minLen: h * 0.1, maxLen: h * 0.2, stemColor: mix(STONE, INK, 0.1), bloomColors: petalCols, lightAngle: -110, bloomScale: 0.8, whisperHue: BLOOM.gold });
+    body += bouquet(rng, w * 0.86, h * 0.9, { stems: 5, spread: 42, minLen: h * 0.1, maxLen: h * 0.2, stemColor: mix(STONE, INK, 0.1), bloomColors: petalCols, lightAngle: -110, bloomScale: 0.8, whisperHue: VINE.marigold, whisperChance: 0.35, whisperMix: 0.65 });
   }
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
   body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.045"/>`;
@@ -692,7 +741,7 @@ function scenePageSpread(rng, w, h, { variant = 'floral' } = {}) {
 
 // --- Learning Design blueprint (dense engineering-drawing on cream) ----------
 // The body is factored out so outlet-learning can embed it too.
-function sceneBlueprintBody(rng, w, h, { title = 'Course Map', numeral = '01', dense = true, hue = BLOOM.gold } = {}) {
+function sceneBlueprintBody(rng, w, h, { title = 'Course Map', numeral = '01', dense = true, hue = VINE.marigold } = {}) {
   let body = '';
   const line = mix(STONE, INK, 0.12);
   const faint = mix(STONE, CREAM, 0.35);
@@ -724,7 +773,7 @@ function sceneBlueprintBody(rng, w, h, { title = 'Course Map', numeral = '01', d
     const cy = up ? ny - h * 0.14 : ny + h * 0.14;
     body += dashedGuide(nx, ny, nx, cy, line, 0.5);
     body += `<circle cx="${nx}" cy="${ny}" r="6" fill="${CREAM}" stroke="${mix(CLAY, INK, 0.1)}" stroke-width="2"/>`;
-    body += `<circle cx="${nx}" cy="${ny}" r="2.4" fill="${CLAY}"/>`;
+    body += `<circle cx="${nx}" cy="${ny}" r="2.4" fill="${i === 3 ? hue : CLAY}"/>`;
     body += metaText(nx, cy + (up ? -8 : 20), `0${i + 1}`, { size: 12, color: line, anchor: 'middle', tracking: 2 });
     // a tiny diagram vignette by each node
     const vignettes = ['ring', 'bars', 'wave', 'grid'];
@@ -745,7 +794,7 @@ function sceneBlueprintBody(rng, w, h, { title = 'Course Map', numeral = '01', d
   for (let c = 0; c < clusters; c++) {
     const cx = rf(rng, w * 0.1, w * 0.88), cyy = rf(rng, h * 0.14, h * 0.86);
     const cn = ri(rng, 4, 8);
-    for (let i = 0; i < cn; i++) body += tickAnnotation(rng, cx + rf(rng, -40, 40), cyy + rf(rng, -30, 30), rf(rng, 8, 16), line, mix(CLAY, hue, 0.3));
+    for (let i = 0; i < cn; i++) body += tickAnnotation(rng, cx + rf(rng, -40, 40), cyy + rf(rng, -30, 30), rf(rng, 8, 16), line, mix(CLAY, hue, 0.6));
     // a dimension line
     const dl = rf(rng, w * 0.06, w * 0.14);
     body += `<line x1="${cx}" y1="${cyy + 34}" x2="${cx + dl}" y2="${cyy + 34}" stroke="${line}" stroke-width="1" opacity="0.6"/>`;
@@ -762,8 +811,8 @@ function sceneBlueprintBody(rng, w, h, { title = 'Course Map', numeral = '01', d
   // big serif numeral + titles
   body += `<text x="${w * 0.1}" y="${h * 0.26}" font-family="Fraunces" font-size="${h * (dense ? 0.2 : 0.22)}" fill="${INK}" opacity="0.9">${numeral}</text>`;
   body += metaText(w * 0.1, h * 0.32, title, { size: 15, color: CLAY, tracking: 3 });
-  // one bloom-hue whisper on a single node marker
-  body += `<circle cx="${nodes[3][0]}" cy="${nodes[3][1]}" r="9" fill="none" stroke="${mix(CLAY, hue, 0.5)}" stroke-width="2" opacity="0.5"/>`;
+  // one clearly-colored vine accent ring on a single node marker
+  body += `<circle cx="${nodes[3][0]}" cy="${nodes[3][1]}" r="9" fill="none" stroke="${hue}" stroke-width="2" opacity="0.75"/>`;
   return body;
 }
 
@@ -827,19 +876,20 @@ function sceneMoodyStill(rng, w, h, { subject = 'stillLife', lightX = 0.4, light
     // route portraits/still-lifes through the strong window still-life
     return sceneWindowStill(rng, w, h, { label: 'Photography' });
   }
+  const floor = mix(INK, STONE, 0.14); // lifted from pure INK so the floor isn't a black hole
   let defs = grainFilter('grain', ri(rng, 1, 999), 0.75) + blurFilter('sbBig', 22) + blurFilter('sb', 9)
-    + groundShade('gs', w, h, INK, 0.46)
+    + groundShade('gs', w, h, floor, 0.32)
     + directionalLight('wl', w, h, w * lightX, h * lightY, '75%', CHAMPAGNE, 0.5);
-  let body = `<rect width="${w}" height="${h}" fill="${INK}"/>`;
+  let body = `<rect width="${w}" height="${h}" fill="${floor}"/>`;
   body += `<rect width="${w}" height="${h}" fill="url(#wl)"/>`;
   if (subject === 'handsBook') {
     defs += `<linearGradient id="pg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${CREAM}"/><stop offset="100%" stop-color="${CREAM_DEEP}"/></linearGradient>`;
     const bw = w * 0.5, bh = h * 0.24, bx = (w - bw) / 2, by = h * 0.48;
-    body += `<g filter="url(#sbBig)"><ellipse cx="${w * 0.5}" cy="${by + bh + h * 0.02}" rx="${bw * 0.62}" ry="${h * 0.03}" fill="#000" opacity="0.45"/></g>`;
+    body += `<g filter="url(#sbBig)"><ellipse cx="${w * 0.5}" cy="${by + bh + h * 0.02}" rx="${bw * 0.62}" ry="${h * 0.03}" fill="#000" opacity="0.4"/></g>`;
     body += `<path d="M ${bx} ${by + 6} Q ${w * 0.5} ${by - 12} ${bx + bw} ${by + 6} L ${bx + bw} ${by + bh} Q ${w * 0.5} ${by + bh + 16} ${bx} ${by + bh} Z" fill="url(#pg)" stroke="${STONE}" stroke-width="1" opacity="0.96"/>`;
     body += `<line x1="${w / 2}" y1="${by - 6}" x2="${w / 2}" y2="${by + bh + 8}" stroke="${STONE}" stroke-width="1" opacity="0.4"/>`;
     body += scriptLines(rng, bx + bw * 0.08, by + bh * 0.28, bw * 0.34, 4, bh * 0.16, mix(STONE, INK, 0.15), 0.5);
-    body += pressedFlower(rng, bx + bw * 0.74, by + bh * 0.4, bw * 0.04, mix(CLAY, BLOOM.iris, 0.3));
+    body += pressedFlower(rng, bx + bw * 0.74, by + bh * 0.4, bw * 0.04, mix(CLAY, VINE.violet, 0.45));
     body += `<g filter="url(#sb)" opacity="0.92"><path d="M ${w * 0.06} ${h} Q ${w * 0.14} ${h * 0.78} ${w * 0.3} ${by + bh * 0.7} Q ${w * 0.34} ${by + bh + 20} ${w * 0.24} ${h * 0.92} Q ${w * 0.14} ${h} ${w * 0.06} ${h} Z" fill="${INK_SOFT}"/>`;
     body += `<path d="M ${w * 0.94} ${h} Q ${w * 0.86} ${h * 0.78} ${w * 0.7} ${by + bh * 0.7} Q ${w * 0.66} ${by + bh + 20} ${w * 0.76} ${h * 0.92} Q ${w * 0.86} ${h} ${w * 0.94} ${h} Z" fill="${INK_SOFT}"/></g>`;
   } else if (subject === 'interior') {
@@ -849,7 +899,7 @@ function sceneMoodyStill(rng, w, h, { subject = 'stillLife', lightX = 0.4, light
     body += `<line x1="${w * 0.56}" y1="${h * 0.33}" x2="${w * 0.9}" y2="${h * 0.33}" stroke="${mix(INK_SOFT, STONE, 0.3)}" stroke-width="6" opacity="0.6"/>`;
     // a chair silhouette + a plant catching light
     body += `<g filter="url(#sb)"><rect x="${w * 0.34}" y="${h * 0.6}" width="${w * 0.12}" height="${h * 0.03}" rx="6" fill="${INK_SOFT}"/><rect x="${w * 0.34}" y="${h * 0.48}" width="${w * 0.03}" height="${h * 0.15}" rx="4" fill="${INK_SOFT}"/><rect x="${w * 0.35}" y="${h * 0.62}" width="${w * 0.012}" height="${h * 0.14}" fill="${INK_SOFT}"/><rect x="${w * 0.44}" y="${h * 0.62}" width="${w * 0.012}" height="${h * 0.14}" fill="${INK_SOFT}"/></g>`;
-    body += bouquet(rng, w * 0.78, h * 0.72, { stems: 5, spread: 40, minLen: h * 0.12, maxLen: h * 0.22, stemColor: mix(CHAMPAGNE, INK, 0.4), bloomColors: [SAGE, CLAY], lightAngle: -120, bloomScale: 0.85 });
+    body += bouquet(rng, w * 0.78, h * 0.72, { stems: 5, spread: 40, minLen: h * 0.12, maxLen: h * 0.22, stemColor: mix(CHAMPAGNE, INK, 0.4), bloomColors: [SAGE, CLAY], lightAngle: -120, bloomScale: 0.85, whisperHue: VINE.fuchsia, whisperChance: 0.4, whisperMix: 0.7 });
   }
   body += scatter(rng, w, h, 4, [mix(CLAY, CREAM, 0.2), STONE], { yMin: 0.2, yMax: 0.6, size: 12, op: 0.4, blurId: 'sb' });
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
@@ -860,8 +910,9 @@ function sceneMoodyStill(rng, w, h, { subject = 'stillLife', lightX = 0.4, light
 
 // --- Contact sheet (film strip of mini tonal compositions) -------------------
 function sceneContactSheet(rng, w, h) {
-  let defs = grainFilter('grain', ri(rng, 1, 999), 0.8) + blurFilter('sb', 5) + groundShade('gs', w, h, INK, 0.28);
-  let body = `<rect width="${w}" height="${h}" fill="${INK}"/>`;
+  const floor = mix(INK, STONE, 0.09); // filmstrip stays dark (it's an object, not a page ground) but not pure black
+  let defs = grainFilter('grain', ri(rng, 1, 999), 0.8) + blurFilter('sb', 5) + groundShade('gs', w, h, floor, 0.22);
+  let body = `<rect width="${w}" height="${h}" fill="${floor}"/>`;
   const holeGap = w / 26;
   for (let i = 0; i < 26; i++) {
     body += `<rect x="${i * holeGap + holeGap * 0.3}" y="${h * 0.03}" width="${holeGap * 0.4}" height="${h * 0.025}" rx="2" fill="${CREAM}" opacity="0.5"/>`;
@@ -877,7 +928,7 @@ function sceneContactSheet(rng, w, h) {
     for (let c = 0; c < cols; c++) {
       const x = pad + c * (cw + gap), y = h * 0.11 + r * (ch + gap);
       const kind = kinds[n % kinds.length];
-      const dark = mix(INK, pick(rng, [SAGE, CLAY, STONE, CHAMPAGNE]), rf(rng, 0.12, 0.3));
+      const dark = mix(INK, pick(rng, [SAGE, CLAY, STONE, CHAMPAGNE, VINE.teal]), rf(rng, 0.12, 0.3));
       const light = mix(dark, CREAM, 0.7);
       const gid = `cell${n}`;
       defs += `<linearGradient id="${gid}" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0%" stop-color="${light}"/><stop offset="100%" stop-color="${dark}"/></linearGradient>`;
@@ -940,18 +991,19 @@ function sceneShadowOnPaper(rng, w, h) {
 
 // --- Dusk landscape ----------------------------------------------------------
 function sceneDuskLandscape(rng, w, h) {
+  const warmGlow = mix(CHAMPAGNE, VINE.marigold, 0.45); // richer, more vivid sun color
   let defs = grainFilter('grain', ri(rng, 1, 999), 0.75) + fieldBlurDefs(3) + blurFilter('sb', 8)
-    + groundShade('gs', w, h, INK, 0.4)
-    + directionalLight('sun', w, h, w * 0.7, h * 0.62, '55%', CHAMPAGNE, 0.4);
+    + groundShade('gs', w, h, mix(INK, STONE, 0.1), 0.28)
+    + directionalLight('sun', w, h, w * 0.7, h * 0.62, '58%', warmGlow, 0.42);
   defs += `<linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stop-color="${INK}"/>
-    <stop offset="48%" stop-color="${INK_SOFT}"/>
-    <stop offset="74%" stop-color="${mix(CLAY, INK, 0.4)}"/>
-    <stop offset="100%" stop-color="${mix(CHAMPAGNE, CLAY, 0.5)}"/>
+    <stop offset="0%" stop-color="${mix(INK, STONE, 0.18)}"/>
+    <stop offset="48%" stop-color="${mix(INK_SOFT, STONE, 0.12)}"/>
+    <stop offset="74%" stop-color="${mix(CLAY, INK, 0.32)}"/>
+    <stop offset="100%" stop-color="${mix(CHAMPAGNE, CLAY, 0.45)}"/>
   </linearGradient>`;
   let body = `<rect width="${w}" height="${h}" fill="url(#dusk)"/>`;
   body += `<rect width="${w}" height="${h}" fill="url(#sun)"/>`;
-  body += `<ellipse cx="${w * 0.7}" cy="${h * 0.6}" rx="${w * 0.04}" ry="${w * 0.04}" fill="${mix(CHAMPAGNE, CREAM, 0.4)}" opacity="0.6" filter="url(#sb)"/>`;
+  body += `<ellipse cx="${w * 0.7}" cy="${h * 0.6}" rx="${w * 0.04}" ry="${w * 0.04}" fill="${mix(warmGlow, CREAM, 0.4)}" opacity="0.65" filter="url(#sb)"/>`;
   // layered ridgelines
   for (let r = 0; r < 3; r++) {
     let ridge = `M 0 ${h * (0.62 + r * 0.06)}`;
@@ -959,8 +1011,11 @@ function sceneDuskLandscape(rng, w, h) {
     ridge += ` L ${w} ${h} L 0 ${h} Z`;
     body += `<path d="${ridge}" fill="${mix(INK, INK_SOFT, r * 0.3)}" opacity="${0.7 + r * 0.1}"/>`;
   }
-  // botanical silhouettes along the near ridge
-  body += botanicalField(rng, w, h, { baseY: h * 0.82, bands: 2, perBand: 9, stemColor: INK, bloomColors: [INK, mix(INK, CLAY, 0.3)] });
+  // botanical silhouettes along the near ridge, with a rare vivid teal/violet whisper
+  body += botanicalField(rng, w, h, {
+    baseY: h * 0.82, bands: 2, perBand: 9, stemColor: INK, bloomColors: [INK, mix(INK, CLAY, 0.3)],
+    whisperHue: [VINE.teal, VINE.violet], whisperChance: 0.2, whisperMix: 0.45,
+  });
   body += scatter(rng, w, h, 8, [mix(INK, CHAMPAGNE, 0.3)], { yMin: 0.3, yMax: 0.6, size: 10, op: 0.3, blurId: 'sb' });
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
   body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.05"/>`;
@@ -974,9 +1029,11 @@ function sceneDuskLandscape(rng, w, h) {
 const SCENES = {
   'hero-bloom-field': { w: 1600, h: 1100, build: (rng) => sceneHeroBloomField(rng, 1600, 1100) },
 
-  'outlet-publishing': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'cream', hue: 'iris', style: 'floral' }) },
-  'outlet-photography': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'dark', hue: 'coral', style: 'stillLife' }) },
-  'outlet-learning': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'cream', hue: 'gold', style: 'blueprint' }) },
+  // v2: all three outlet covers brighten to light-sage/cream grounds; each keeps
+  // its signature accent but switches to a vivid vine hue (DESIGN.md top banner).
+  'outlet-publishing': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'cream', hue: 'violet', style: 'floral' }) },
+  'outlet-photography': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'cream', hue: 'fuchsia', style: 'stillLife' }) },
+  'outlet-learning': { w: 1600, h: 2000, build: (rng) => sceneOutletCover(rng, 1600, 2000, { ground: 'cream', hue: 'marigold', style: 'blueprint' }) },
 
   'gallery-01': { w: 1600, h: 1100, build: (rng) => scenePageSpread(rng, 1600, 1100, { variant: 'floral' }) },
   'gallery-02': { w: 1600, h: 2000, build: (rng) => sceneWindowStill(rng, 1600, 2000, { label: 'Photography', index: 'Still · 02' }) },
@@ -1017,23 +1074,34 @@ function buildGrainTexture() {
   return { html: page(w, h, body, defs), w, h };
 }
 
+// v2 rework (DESIGN.md top banner + item 3): the social share card moves to the
+// same light-sage world as the rest of the site — near-white ground, an ink
+// wordmark, and a vivid vine flourish tucked into a corner (a "magic moment"
+// accent, not a full-bleed effect).
 function buildOgCard() {
   const w = 1200, h = 630;
   const rng = makeRng('og-card');
-  const bands = 3;
-  let defs = grainFilter('grain', 5, 0.85) + fieldBlurDefs(bands) + blurFilter('sb', 7)
-    + directionalLight('moon', w, h, w * 0.5, h * 0.34, '75%', CHAMPAGNE, 0.3)
-    + groundShade('gs', w, h, INK, 0.4);
-  defs += `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${mix(INK, INK_SOFT, 0.3)}"/><stop offset="100%" stop-color="${INK}"/></linearGradient>`;
+  let defs = grainFilter('grain', 5, 0.85) + blurFilter('sb', 7)
+    + directionalLight('glow', w, h, w * 0.5, h * 0.3, '75%', CREAM, 0.55)
+    + groundShade('gs', w, h, SAGE_TINT_DEEP, 0.16);
+  defs += `<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="${CREAM}"/>
+    <stop offset="100%" stop-color="${mix(CREAM, SAGE_TINT, 0.55)}"/>
+  </linearGradient>`;
   let body = `<rect width="${w}" height="${h}" fill="url(#sky)"/>`;
-  body += `<rect width="${w}" height="${h}" fill="url(#moon)"/>`;
-  body += botanicalField(rng, w, h, { baseY: h * 1.02, bands, perBand: 10, stemColor: STONE, bloomColors: [SAGE, CLAY, CHAMPAGNE], whisperHue: BLOOM.peony });
-  body += metaText(w * 0.5, h * 0.3, 'Publishing · Photography · Learning Design', { size: 14, color: STONE, tracking: 3, anchor: 'middle' });
-  body += `<text x="${w / 2}" y="${h * 0.54}" font-family="Fraunces" font-size="86" fill="${CREAM}" text-anchor="middle" letter-spacing="4" opacity="0.96">HOPE ON STUDIO</text>`;
-  body += `<line x1="${w * 0.38}" y1="${h * 0.6}" x2="${w * 0.62}" y2="${h * 0.6}" stroke="${CHAMPAGNE}" stroke-width="1" opacity="0.6"/>`;
-  body += `<text x="${w / 2}" y="${h * 0.66}" font-family="Cormorant Garamond" font-style="italic" font-size="24" fill="${CHAMPAGNE}" text-anchor="middle" opacity="0.85">a gift, made with hope</text>`;
+  body += `<rect width="${w}" height="${h}" fill="url(#glow)"/>`;
+  // a vivid vine flourish tucked into the lower-right corner
+  body += branch(rng, w * 0.98, h * 1.04, w * 0.22, -142, { color: mix(SAGE, INK, 0.2), width: 3, leaves: 6, leafColor: VINE.leaf, opacity: 0.9, bow: 1.2 }).g;
+  body += rosette(rng, w * 0.865, h * 0.85, 46, { baseColor: VINE.fuchsia, coreColor: CREAM, rings: 3, basePetals: 12, lightAngle: -120 });
+  body += rosette(rng, w * 0.945, h * 0.7, 30, { baseColor: VINE.marigold, coreColor: CREAM, rings: 3, basePetals: 10 });
+  body += bud(rng, w * 0.79, h * 0.665, 20, VINE.violet);
+  body += scatter(rng, w, h, 5, [VINE.teal, VINE.leaf], { yMin: 0.55, yMax: 0.94, size: 9, op: 0.5 });
+  body += metaText(w * 0.5, h * 0.32, 'Publishing · Photography · Learning Design', { size: 14, color: mix(STONE, INK, 0.2), tracking: 3, anchor: 'middle' });
+  body += `<text x="${w / 2}" y="${h * 0.54}" font-family="Fraunces" font-size="86" fill="${INK}" text-anchor="middle" letter-spacing="4" opacity="0.94">HOPE ON STUDIO</text>`;
+  body += `<line x1="${w * 0.38}" y1="${h * 0.6}" x2="${w * 0.62}" y2="${h * 0.6}" stroke="${mix(CLAY, INK, 0.1)}" stroke-width="1" opacity="0.55"/>`;
+  body += `<text x="${w / 2}" y="${h * 0.66}" font-family="Cormorant Garamond" font-style="italic" font-size="24" fill="${mix(CLAY, INK, 0.15)}" text-anchor="middle" opacity="0.85">a gift, made with hope</text>`;
   body += `<rect width="${w}" height="${h}" fill="url(#gs)"/>`;
-  body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.05"/>`;
+  body += `<rect width="${w}" height="${h}" filter="url(#grain)" opacity="0.045"/>`;
   return { html: page(w, h, body, defs), w, h };
 }
 

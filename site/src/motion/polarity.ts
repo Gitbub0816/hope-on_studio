@@ -1,17 +1,24 @@
 /**
- * The polarity flip — video 1's signature ink <-> cream ground crossfade.
- * Sections declare `data-ground="ink|cream"` and keep transparent backgrounds;
- * we tween `document.body`'s background-color as each section's top crosses
- * 60% of the viewport, and stamp `body.dataset.ground` so fixed chrome
- * (nav, cursor) can flip its own tokens via CSS.
+ * The polarity flip — video 1's signature ground crossfade, recalibrated for
+ * "Light Sage World" (owner redirect, DESIGN.md top banner): both grounds are
+ * now LIGHT — a near-white sage (`--cream`) and a deeper sage tint
+ * (`--sage-tint`). Sections still declare `data-ground="ink|cream"` and keep
+ * transparent backgrounds; we tween `document.body`'s background-color as
+ * each section's top crosses 60% of the viewport, and stamp
+ * `body.dataset.ground` so fixed chrome (nav, cursor) can flip its own
+ * tokens via CSS. The mechanics are unchanged — only the two target colors
+ * moved from ink/cream to the two light sage tints.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { prefersReducedMotion } from './util';
 
+// Resolved values of site/src/styles/tokens.css's --sage-tint / --cream.
+// Hardcoded (not read live) because GSAP tweens body.style.backgroundColor
+// directly and needs concrete color strings to interpolate between.
 const GROUND_COLOR: Record<string, string> = {
-  ink: '#191714',
-  cream: '#f2ece1',
+  ink: '#e4ebda', // --sage-tint — the deeper light ground
+  cream: '#f3f6ef', // --cream — the near-white base ground
 };
 
 let currentGround: string | null = null;

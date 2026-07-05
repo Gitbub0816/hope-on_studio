@@ -193,8 +193,47 @@ export function token(name: string, fallback: string): string {
   return v || fallback;
 }
 
-/** Nearest [data-ground] polarity for a host ('ink' dark / 'cream' light). */
+/** WCAG relative luminance (0..1) of an sRGB color. */
+function relativeLuminance(r: number, g: number, b: number): number {
+  const lin = (c: number) => {
+    const cs = c / 255;
+    return cs <= 0.03928 ? cs / 12.92 : Math.pow((cs + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Parse an rgb()/rgba() computed-style string; null if transparent/unparseable. */
+function parseComputedRgb(color: string): RGB | null {
+  const m = color.match(/rgba?\(([^)]+)\)/i);
+  if (!m) return null;
+  const parts = m[1].split(',').map((s) => parseFloat(s.trim()));
+  const [r, g, b, a = 1] = parts;
+  if ([r, g, b].some((n) => Number.isNaN(n)) || a === 0) return null;
+  return { r, g, b };
+}
+
+/**
+ * Nearest [data-ground] polarity for a host, resolved by ACTUAL luminance of
+ * the effective background — not by the data-ground attribute's name. Under
+ * "Light Sage World" both `ink` and `cream` grounds are light, so a naive
+ * name-based check would wrongly call the `ink` ground "dark". We sample the
+ * nearest [data-ground] ancestor's computed background-color (falling back
+ * to <body>, since sections themselves are usually transparent and the
+ * cross-faded color lives on body), and classify it by relative luminance.
+ * Return value keeps its historical meaning for callers: 'ink' = dark
+ * background (light glyphs read best), 'cream' = light background (dark
+ * glyphs read best).
+ */
 export function groundOf(host: HTMLElement): 'ink' | 'cream' {
-  const g = host.closest('[data-ground]')?.getAttribute('data-ground');
-  return g === 'cream' ? 'cream' : 'ink';
+  const section = host.closest<HTMLElement>('[data-ground]');
+  const candidates = [section, document.body].filter(Boolean) as HTMLElement[];
+
+  for (const el of candidates) {
+    const rgb = parseComputedRgb(getComputedStyle(el).backgroundColor);
+    if (rgb) return relativeLuminance(rgb.r, rgb.g, rgb.b) < 0.5 ? 'ink' : 'cream';
+  }
+
+  // No paintable background found anywhere — both grounds are light now,
+  // so default to the light-background behavior (dark glyphs).
+  return 'cream';
 }

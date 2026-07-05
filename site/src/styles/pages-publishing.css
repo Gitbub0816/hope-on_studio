@@ -28,7 +28,7 @@
   right: 0;
   width: min(3.5rem, 4vw);
   height: 92%;
-  border-right: 1px solid rgba(25, 23, 20, 0.08);
+  border-right: 1px solid rgba(35, 40, 31, 0.08);
   pointer-events: none;
 }
 

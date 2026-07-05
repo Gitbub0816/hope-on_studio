@@ -20,21 +20,26 @@
   z-index: var(--z-cursor);
   opacity: 0;
   visibility: hidden;
-  mix-blend-mode: exclusion;
+  /* Light Sage World: both grounds are light now, so an invert blend mode
+     (built for alternating dark/light) no longer reads reliably — paint the
+     cursor with real, ground-aware colors instead. */
+  mix-blend-mode: normal;
 }
 
 .cursor-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--champagne);
+  /* The one vivid cursor accent — a tiny vine-fuchsia core, visible over
+     both the light ground and the rare dark framed-photo moment. */
+  background: var(--vine-fuchsia);
 }
 
 .cursor-ring {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1px solid var(--champagne);
+  border: 1px solid rgba(35, 40, 31, 0.32);
   transition: width 0.35s var(--ease-out), height 0.35s var(--ease-out), border-color 0.35s var(--ease-out);
 }
 
@@ -43,11 +48,14 @@
   height: 52px;
 }
 
+/* The badge only ever appears over dark-scrimmed framed photography
+   (triptych "ENTER", gallery "VIEW") — its own dark chip + light text is
+   correct there regardless of the light page ground around it. */
 .cursor-ring--badge {
   width: 72px;
   height: 72px;
   border-color: transparent;
-  background: rgba(216, 201, 168, 0.08);
+  background: rgba(25, 23, 20, 0.4);
 }
 
 .cursor-ring__badge {
@@ -68,7 +76,7 @@
   font-size: 8.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  fill: var(--champagne);
+  fill: rgba(243, 246, 239, 0.96);
 }
 
 /* ---------- Ghost headings ("ABOUT US / ABOUT US") ---------- */

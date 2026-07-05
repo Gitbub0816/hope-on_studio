@@ -37,10 +37,22 @@
   color: var(--fg);
 }
 .stats-editorial__value {
+  display: inline-block;
   font-size: clamp(3.4rem, 7vw, 6.6rem);
   font-weight: 340;
   min-width: 1ch;
   font-variant-numeric: lining-nums tabular-nums;
+  transition: transform 0.35s var(--ease-out);
+}
+/* A tiny living pulse on hover — transform only. */
+.stats-editorial__col:hover .stats-editorial__value {
+  transform: scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stats-editorial__col:hover .stats-editorial__value {
+    transform: none;
+  }
 }
 .stats-editorial__suffix {
   font-size: clamp(1.1rem, 1.8vw, 1.6rem);
