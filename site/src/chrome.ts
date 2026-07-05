@@ -73,7 +73,7 @@ function buildNav(): void {
   }
   const cta = document.createElement('a');
   cta.className = 'chrome-nav__cta';
-  cta.href = '#landing-contact';
+  cta.href = '#contact';
   cta.textContent = 'Enquire';
   cta.dataset.cursor = 'link';
   links.append(cta);

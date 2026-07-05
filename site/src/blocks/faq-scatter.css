@@ -1,0 +1,110 @@
+/* faq-scatter — scattered title + elegant accordion */
+
+.faq__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+
+.faq__head {
+  position: sticky;
+  top: clamp(5rem, 12vh, 8rem);
+}
+.faq__title {
+  margin-top: 1.2rem;
+  font-size: clamp(3.5rem, 9vw, 8rem);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  color: var(--fg);
+}
+
+.faq__list {
+  border-top: 1px solid var(--line);
+}
+.faq__item {
+  position: relative;
+}
+.faq__item .rule {
+  width: 100%;
+}
+
+.faq__q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: clamp(1.2rem, 2.6vh, 2rem) 0;
+  text-align: left;
+}
+.faq__q-text {
+  font-size: clamp(1.3rem, 2.2vw, 2rem);
+  font-weight: 340;
+  line-height: 1.12;
+  color: var(--fg);
+  transition: color 0.4s var(--ease-out);
+}
+.faq__q:hover .faq__q-text {
+  color: var(--clay);
+}
+
+.faq__icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.faq__icon::before,
+.faq__icon::after {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1px;
+  background: var(--fg-soft);
+  transition: transform 0.45s var(--ease-out);
+}
+.faq__icon::after {
+  transform: rotate(90deg);
+}
+.faq__item--open .faq__icon::after {
+  transform: rotate(0deg);
+}
+
+.faq__a-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition: grid-template-rows 0.55s var(--ease-out), opacity 0.4s var(--ease-out);
+}
+.faq__item--open .faq__a-wrap {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+.faq__a {
+  overflow: hidden;
+}
+.faq__a-text {
+  max-width: 52ch;
+  padding-bottom: clamp(1.2rem, 2.6vh, 2rem);
+  font-size: clamp(1.02rem, 1.15vw, 1.2rem);
+  line-height: var(--leading-body);
+  color: var(--fg-soft);
+}
+
+@media (max-width: 860px) {
+  .faq__grid {
+    grid-template-columns: 1fr;
+    gap: clamp(1.5rem, 6vh, 3rem);
+  }
+  .faq__head {
+    position: static;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .faq__a-wrap {
+    transition: none;
+  }
+}

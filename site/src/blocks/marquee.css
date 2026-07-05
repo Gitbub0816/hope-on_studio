@@ -1,0 +1,43 @@
+/* marquee — low-contrast looping display line */
+
+.marquee-section {
+  padding: clamp(2.5rem, 7vh, 5rem) 0;
+  overflow: clip;
+}
+
+.marquee__wrap {
+  padding-block: clamp(1rem, 3vh, 2rem);
+}
+
+.marquee__line {
+  font-weight: 320;
+  font-size: 9vw;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: rgba(242, 236, 225, 0.15);
+  user-select: none;
+}
+[data-ground='cream'] .marquee__line {
+  color: rgba(25, 23, 20, 0.14);
+}
+
+.marquee__word {
+  padding-inline: 0.15em;
+}
+.marquee__orn {
+  color: var(--champagne);
+  opacity: 0.7;
+  font-size: 0.55em;
+  vertical-align: middle;
+}
+
+.marquee-section .rule {
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .marquee__line {
+    font-size: 15vw;
+  }
+}
