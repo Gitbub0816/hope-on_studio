@@ -1,14 +1,20 @@
 /**
- * Page chrome — fixed nav, the ink preloader, custom cursor + motion wiring,
- * and the fixed corner metadata stamps (EST. 2026 / section index).
+ * Page chrome — "Light Sage World" (v2). Deliberately NOT a top bar.
  *
- * Page-agnostic: every page (landing + detail pages) calls initChrome(page)
+ *   · top-left  : stacked wordmark lockup — 'Hope On' in Fraunces italic over a
+ *                 hand-drawn vine flourish that draws itself in, 'STUDIO' beneath.
+ *   · right edge: a floating vertical rail of three leaf markers (one per outlet);
+ *                 each opens a Fraunces-italic name pill leftward on hover/focus.
+ *                 On mobile the rail collapses to a floral button that fans the
+ *                 markers out in an arc.
+ *   · bottom-left: a rotated 'Enquire' tab in antique gold that slides out on hover.
+ *   · corner stamps: EST. 2026 + section index with a vine-teal scroll-progress tick.
+ *   · one fixed, full-viewport ambient vines layer behind all content.
+ *   · the ink preloader — choreography UNCHANGED (owner likes it); only its screen
+ *     is pinned to --preloader-ink and it lifts away to reveal the light sage world.
+ *
+ * Page-agnostic: every page (landing + detail pages + 404) calls initChrome(page)
  * before rendering, then chrome.reveal() after render + initMotion.
- *
- *   const chrome = initChrome(page);
- *   await chrome.done;          // preloader intro finished
- *   renderPage(...); initMotion();
- *   chrome.reveal();            // lift preloader, start section-index watcher
  */
 import gsap from 'gsap';
 import type { PageContent } from '@shared/types';
@@ -18,10 +24,26 @@ import './chrome.css';
 
 const SKIP_KEY = 'hos_preloaded';
 
-const OUTLETS: { label: string; href: string }[] = [
-  { label: 'Publishing', href: '/publishing' },
-  { label: 'Photography', href: '/photography' },
-  { label: 'Learning Design', href: '/learning-design' },
+/** Insert a chrome element into the tab order just before the page content
+ *  (#app), so the primary nav is keyboard-reachable before the content. */
+function mountBeforeApp(node: HTMLElement): void {
+  const app = document.getElementById('app');
+  if (app && app.parentNode) app.parentNode.insertBefore(node, app);
+  else document.body.append(node);
+}
+
+interface Outlet {
+  key: string;
+  label: string;
+  href: string;
+  /** VINE hue for this outlet (DESIGN v2 — not the old bloom hues). */
+  hue: string;
+}
+
+const OUTLETS: Outlet[] = [
+  { key: 'publishing', label: 'Publishing', href: '/publishing', hue: 'var(--vine-violet)' },
+  { key: 'photography', label: 'Photography', href: '/photography', hue: 'var(--vine-fuchsia)' },
+  { key: 'learning-design', label: 'Learning Design', href: '/learning-design', hue: 'var(--vine-marigold)' },
 ];
 
 export interface ChromeHandle {
@@ -32,7 +54,10 @@ export interface ChromeHandle {
 }
 
 export function initChrome(page: PageContent): ChromeHandle {
-  buildNav();
+  mountVines();
+  buildWordmark();
+  buildRail(page);
+  buildEnquire();
   buildStamps(page);
   initCursor();
 
@@ -44,58 +69,200 @@ export function initChrome(page: PageContent): ChromeHandle {
     reveal() {
       liftPreloader(preloader);
       watchSections();
+      startScrollTick();
     },
   };
 }
 
-/* ---------------------------------------------------------------- nav */
+/* ------------------------------------------------------- ambient vines */
 
-function buildNav(): void {
-  const nav = document.createElement('header');
-  nav.className = 'chrome-nav';
-  nav.setAttribute('aria-label', 'Primary');
+/** One fixed, full-viewport ambient vine layer behind all content. The engine
+ *  module may still be landing — import defensively; the sage ground stands
+ *  alone if it is absent, and the engine renders a static variant under
+ *  reduced motion itself. */
+function mountVines(): void {
+  if (document.querySelector('.chrome-vines')) return;
+  const host = document.createElement('div');
+  host.className = 'chrome-vines';
+  host.setAttribute('aria-hidden', 'true');
+  document.body.prepend(host);
 
-  const wordmark = document.createElement('a');
-  wordmark.className = 'chrome-nav__mark';
-  wordmark.href = '/';
-  wordmark.dataset.cursor = 'link';
-  wordmark.innerHTML = `<span>Hope On</span><span class="chrome-nav__mark-em">— Studio</span>`;
+  import('./engine/vines')
+    .then((mod) => {
+      const layer = (mod as { vinesLayer?: unknown }).vinesLayer;
+      if (typeof layer === 'function') {
+        (layer as (h: HTMLElement, o?: unknown) => unknown)(host, {
+          density: 'ambient',
+          zone: 'full',
+        });
+      }
+    })
+    .catch(() => {
+      /* vines engine not present yet — near-white sage ground stands alone */
+    });
+}
 
-  const links = document.createElement('nav');
-  links.className = 'chrome-nav__links';
+/* ---------------------------------------------------------- wordmark */
+
+function buildWordmark(): void {
+  const mark = document.createElement('a');
+  mark.className = 'chrome-mark';
+  mark.href = '/';
+  mark.dataset.cursor = 'link';
+  mark.setAttribute('aria-label', 'Hope On Studio — home');
+
+  mark.innerHTML = `
+    <span class="chrome-mark__word">Hope On</span>
+    <svg class="chrome-mark__vine" viewBox="0 0 148 26" fill="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="hos-vine-grad" x1="0" y1="0" x2="148" y2="0" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="var(--vine-fuchsia)"/>
+          <stop offset="1" stop-color="var(--vine-violet)"/>
+        </linearGradient>
+      </defs>
+      <path class="chrome-mark__stem" stroke="url(#hos-vine-grad)" stroke-width="1.6"
+        stroke-linecap="round"
+        d="M3 16 C 24 6 40 22 62 14 C 82 7 96 21 118 12 C 130 7 138 12 145 9"/>
+      <path class="chrome-mark__leaf" stroke="url(#hos-vine-grad)" stroke-width="1.4"
+        stroke-linecap="round" fill="none"
+        d="M62 14 C 58 4 66 2 70 5 C 73 8 68 13 62 14 Z"/>
+      <path class="chrome-mark__leaf" stroke="url(#hos-vine-grad)" stroke-width="1.4"
+        stroke-linecap="round" fill="none"
+        d="M118 12 C 120 3 128 4 129 8 C 130 12 124 14 118 12 Z"/>
+    </svg>
+    <span class="chrome-mark__studio">Studio</span>`;
+
+  mountBeforeApp(mark);
+
+  if (reducedMotion) return;
+  const paths = mark.querySelectorAll<SVGPathElement>('path');
+  const tl = gsap.timeline({ delay: 0.15 });
+  paths.forEach((p, i) => {
+    let len = 40;
+    try {
+      len = p.getTotalLength() || 40;
+    } catch {
+      /* jsdom / no layout — leave the fallback length */
+    }
+    gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+    tl.to(
+      p,
+      { strokeDashoffset: 0, duration: i === 0 ? 1.1 : 0.5, ease: 'power2.out' },
+      i === 0 ? 0 : '>-0.15',
+    );
+  });
+}
+
+/* -------------------------------------------------------------- rail */
+
+function activeKey(page: PageContent): string | null {
+  const bySlug = OUTLETS.find((o) => o.key === page.slug);
+  if (bySlug) return bySlug.key;
+  const path = window.location.pathname.replace(/\/+$/, '') || '/';
+  return OUTLETS.find((o) => o.href === path)?.key ?? null;
+}
+
+const LEAF_SVG = `<svg class="chrome-rail__leaf" viewBox="0 0 24 24" aria-hidden="true">
+  <path class="chrome-rail__leaf-body" d="M12 2.5 C 4.5 7 4.5 17 12 21.5 C 19.5 17 19.5 7 12 2.5 Z"/>
+  <path class="chrome-rail__leaf-vein" d="M12 4.5 L 12 20" />
+</svg>`;
+
+function buildRail(page: PageContent): void {
+  const active = activeKey(page);
+
+  const rail = document.createElement('nav');
+  rail.className = 'chrome-rail';
+  rail.setAttribute('aria-label', 'Outlets');
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'chrome-rail__toggle';
+  toggle.dataset.cursor = 'link';
+  toggle.setAttribute('aria-label', 'Open outlets menu');
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.setAttribute('aria-controls', 'chrome-rail-list');
+  toggle.innerHTML = `<svg viewBox="0 0 32 32" aria-hidden="true">
+      <g class="chrome-rail__petals" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 16 C 16 8 12 5 16 3 C 20 5 16 8 16 16Z"/>
+        <path d="M16 16 C 24 16 27 12 29 16 C 27 20 24 16 16 16Z"/>
+        <path d="M16 16 C 16 24 20 27 16 29 C 12 27 16 24 16 16Z"/>
+        <path d="M16 16 C 8 16 5 20 3 16 C 5 12 8 16 16 16Z"/>
+      </g>
+      <circle class="chrome-rail__pistil" cx="16" cy="16" r="2.6"/>
+    </svg>`;
+
+  const list = document.createElement('ul');
+  list.className = 'chrome-rail__list';
+  list.id = 'chrome-rail-list';
+
   for (const o of OUTLETS) {
-    const a = document.createElement('a');
-    a.className = 'chrome-nav__link';
-    a.href = o.href;
-    a.textContent = o.label;
-    a.dataset.cursor = 'link';
-    links.append(a);
-  }
-  const cta = document.createElement('a');
-  cta.className = 'chrome-nav__cta';
-  cta.href = '#contact';
-  cta.textContent = 'Enquire';
-  cta.dataset.cursor = 'link';
-  links.append(cta);
+    const li = document.createElement('li');
+    li.className = 'chrome-rail__item';
+    li.style.setProperty('--hue', o.hue);
 
-  nav.append(wordmark, links);
-  document.body.prepend(nav);
+    const a = document.createElement('a');
+    a.className = 'chrome-rail__link';
+    a.href = o.href;
+    a.dataset.cursor = 'link';
+    a.setAttribute('aria-label', o.label);
+    if (active === o.key) a.setAttribute('aria-current', 'page');
+    a.innerHTML = `<span class="chrome-rail__name">${o.label}</span>${LEAF_SVG}`;
+
+    li.append(a);
+    list.append(li);
+  }
+
+  rail.append(list, toggle);
+  mountBeforeApp(rail);
+
+  // Mobile fan: toggle expands/collapses the arc.
+  const setOpen = (open: boolean): void => {
+    rail.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close outlets menu' : 'Open outlets menu');
+  };
+  toggle.addEventListener('click', () => setOpen(!rail.classList.contains('is-open')));
+  document.addEventListener('click', (e) => {
+    if (!rail.classList.contains('is-open')) return;
+    if (!rail.contains(e.target as Node)) setOpen(false);
+  });
+  rail.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && rail.classList.contains('is-open')) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+}
+
+/* ----------------------------------------------------------- enquire */
+
+function buildEnquire(): void {
+  const a = document.createElement('a');
+  a.className = 'chrome-enquire';
+  a.href = '#contact';
+  a.dataset.cursor = 'link';
+  a.innerHTML = `<span class="chrome-enquire__label">Enquire</span>`;
+  document.body.append(a);
 }
 
 /* ------------------------------------------------------------- stamps */
 
 function buildStamps(page: PageContent): void {
-  const left = document.createElement('div');
-  left.className = 'chrome-stamp chrome-stamp--bl';
-  left.textContent = 'Est. 2026';
+  const est = document.createElement('div');
+  est.className = 'chrome-stamp chrome-stamp--est';
+  est.innerHTML = `<span>Hope On Studio</span><span class="chrome-stamp__dot">·</span><span>Est. 2026</span>`;
 
-  const right = document.createElement('div');
-  right.className = 'chrome-stamp chrome-stamp--br';
-  right.dataset.stampIndex = 'true';
-  const total = String(page.blocks.length).padStart(2, '0');
-  right.innerHTML = `<span class="chrome-stamp__n">01</span><span class="chrome-stamp__sep">/</span><span class="chrome-stamp__total">${total}</span>`;
+  const index = document.createElement('div');
+  index.className = 'chrome-stamp chrome-stamp--index';
+  index.dataset.stampIndex = 'true';
+  const total = String(Math.max(page.blocks.length, 1)).padStart(2, '0');
+  index.innerHTML =
+    `<span class="chrome-stamp__tick" aria-hidden="true"><i class="chrome-stamp__tick-fill"></i></span>` +
+    `<span class="chrome-stamp__n">01</span>` +
+    `<span class="chrome-stamp__sep">/</span>` +
+    `<span class="chrome-stamp__total">${total}</span>`;
 
-  document.body.append(left, right);
+  document.body.append(est, index);
 }
 
 function watchSections(): void {
@@ -117,7 +284,34 @@ function watchSections(): void {
   sections.forEach((s) => observer.observe(s));
 }
 
+/** Vine-teal tick beside the section index, filling with scroll progress.
+ *  A state indicator (not decorative motion), so it updates under reduced
+ *  motion too — it just reflects position, it does not animate on its own. */
+function startScrollTick(): void {
+  const fill = document.querySelector<HTMLElement>('.chrome-stamp__tick-fill');
+  if (!fill) return;
+  let ticking = false;
+  const update = (): void => {
+    ticking = false;
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - window.innerHeight;
+    const p = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
+    fill.style.transform = `scaleY(${p})`;
+  };
+  const onScroll = (): void => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
+  update();
+}
+
 /* ---------------------------------------------------------- preloader */
+/* Choreography is intentionally unchanged (owner likes the start animation):
+   letter cascade → rule draw → sub fade → lift. Only the screen colour is
+   pinned to --preloader-ink, and it reveals the light sage world on lift. */
 
 function buildPreloader(): HTMLElement {
   const pre = document.createElement('div');
@@ -133,7 +327,7 @@ function buildPreloader(): HTMLElement {
   for (const ch of word) {
     const s = document.createElement('span');
     s.className = 'preloader__ch';
-    s.textContent = ch === ' ' ? ' ' : ch;
+    s.textContent = ch === ' ' ? ' ' : ch;
     mark.append(s);
   }
 
