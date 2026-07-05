@@ -17,6 +17,20 @@
 
 ---
 
+## 2026-07-05 (v2 REDESIGN) — Light Sage World shipped
+
+**Owner redirect executed** (see DESIGN.md top banner): near-white sage ground
+site-wide (polarity = light tint shift; dark only in preloader + framed
+imagery), ambient flower-vine layer (engine/vines.ts, mounted from chrome),
+completely new chrome (leaf rail nav right edge, vine-flourish wordmark,
+rotated Enquire tab, scroll-progress tick), diagonal traveling gallery
+stream (two opposing lanes, hover pause, counter-rotated captions), art
+retuned light with vivid vine-hue pops, idle motion everywhere, AA contrast
+audit done. Triptych re-treated for light world during integration (sage
+veil instead of dark scrim, palette auto). Preloader untouched per owner.
+Admin untouched per owner (inherits tokens). Editor/API/D1 needed NO
+migration (token names kept).
+
 ## 2026-07-05 (DEPLOYED) — Both workers live on workers.dev
 
 **Live URLs:** site https://hope-on-studio.caleb-owen2019.workers.dev ·

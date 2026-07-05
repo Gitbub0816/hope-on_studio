@@ -40,7 +40,7 @@
   font-weight: 300;
   line-height: 1;
   color: transparent;
-  -webkit-text-stroke: 1px rgba(176, 143, 69, 0.32);
+  -webkit-text-stroke: 1px rgba(176, 143, 69, 0.55);
   pointer-events: none;
 }
 
@@ -58,22 +58,25 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.5;
-  filter: saturate(0.72);
+  opacity: 0.94;
   transition: opacity 0.7s var(--ease-out), transform 1.4s var(--ease-out);
 }
 .triptych__panel:hover .triptych__img {
-  opacity: 0.68;
+  opacity: 1;
   transform: scale(1.04);
 }
-/* Gradient so the caption always reads over the image. This is the one place
-   true dark survives on the light ground: framed photography (DESIGN.md top
-   banner §1) — rgb(25,23,20) is --preloader-ink, the reserved dark token. */
+/* Soft sage veil rising from the caption edge so ink type always reads over
+   the light outlet covers (light-world treatment — no dark scrims here). */
 .triptych__media::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(25, 23, 20, 0.9) 8%, rgba(25, 23, 20, 0.28) 55%, rgba(25, 23, 20, 0.5));
+  background: linear-gradient(
+    to top,
+    rgba(243, 246, 239, 0.94) 10%,
+    rgba(243, 246, 239, 0.4) 45%,
+    rgba(243, 246, 239, 0) 70%
+  );
 }
 
 .triptych__caption {
@@ -92,13 +95,13 @@
   font-size: clamp(1.9rem, 3vw, 2.8rem);
   font-weight: 330;
   line-height: 1;
-  color: rgba(243, 246, 239, 0.97);
+  color: var(--ink);
 }
 .triptych__tag {
   margin-top: 0.6rem;
   font-size: clamp(1.05rem, 1.4vw, 1.35rem);
   line-height: 1.4;
-  color: rgba(243, 246, 239, 0.76);
+  color: var(--fg-soft);
   max-width: 24ch;
 }
 

@@ -103,7 +103,7 @@ export const outletTriptych: BlockRenderer<TriptychProps> = {
             const handle = particleImage(host, {
               src: props.panels[i].image.src,
               variant: 'assemble',
-              palette: 'dark',
+              palette: 'auto',
               progress: rest,
             });
             disposers.push(handle.destroy);
@@ -134,7 +134,7 @@ export const outletTriptych: BlockRenderer<TriptychProps> = {
             const handle = particleImage(host, {
               src: props.panels[i].image.src,
               variant: 'assemble',
-              palette: 'dark',
+              palette: 'auto',
               ...(ctx.reducedMotion ? { progress: 1 } : {}),
             });
             disposers.push(handle.destroy);
