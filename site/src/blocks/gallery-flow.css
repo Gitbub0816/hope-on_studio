@@ -180,9 +180,9 @@
     animation: none;
     opacity: 1;
   }
-  .gallery__track {
-    transform: none !important;
-  }
+  /* mount() never builds the loop tween when reduced motion is on, so
+     .gallery__track keeps its static CSS rotate — no travel, just the still
+     diagonal composition. Guard against a stray clone only. */
   .gallery__set--clone {
     display: none;
   }
