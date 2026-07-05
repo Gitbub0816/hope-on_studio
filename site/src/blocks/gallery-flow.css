@@ -126,13 +126,24 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* Halftone treatment — a CSS filter + grain overlay, not the particleImage
+   canvas engine (see the perf note on .gallery__track: a scrubbed canvas
+   inside a translating + rotated marquee measurably cost frames in this
+   sandbox; a filtered <img> costs nothing extra to composite). */
 .gallery__media--halftone .gallery__img {
-  opacity: 0.5;
+  filter: grayscale(0.7) contrast(1.32) brightness(0.92) saturate(0.75);
 }
-.gallery__canvas {
+.gallery__media--halftone::after {
+  content: '';
   position: absolute;
   inset: 0;
-  overflow: clip;
+  background-image:
+    radial-gradient(circle, rgba(35, 40, 32, 0.55) 0.55px, transparent 0.6px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 /* Captions counter-rotate against the band so the small-caps line stays

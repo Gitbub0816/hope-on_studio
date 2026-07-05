@@ -43,7 +43,11 @@
   display: block;
   will-change: transform;
 }
-.quote__line:last-child {
+/* Only the FINAL line of the quote gets the italic gold flourish. Each line
+   lives in its own .quote__line-mask wrapper, so `.quote__line:last-child`
+   alone is a no-op guard here — every line is the sole/last child of its own
+   mask and would match. Scope through the last mask instead. */
+.quote__line-mask:last-child .quote__line {
   font-family: var(--font-italic);
   font-style: italic;
   color: color-mix(in srgb, var(--champagne) 82%, var(--ink) 18%);

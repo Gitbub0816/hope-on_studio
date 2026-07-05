@@ -5,9 +5,16 @@
  * lanes of mixed-size images that marquee-loop along the diagonal in opposite
  * directions (lane 2 slower, for depth). Scroll velocity nudges lane speed
  * (see ../motion/marquee.ts for the pattern this mirrors). Hovering a lane
- * pauses it and scales the hovered image; halftone-treatment items still
- * route through the particle engine at a static progress. Reduced motion
- * drops the travel entirely — a still diagonal composition, gentle fade only.
+ * pauses it and scales the hovered image. Reduced motion drops the travel
+ * entirely — a still diagonal composition, gentle fade only.
+ *
+ * Halftone treatment: a CSS filter + grain overlay on a plain <img>, NOT the
+ * particleImage canvas engine. Measured in this repo (see gallery-flow.css
+ * perf note): with the canvas engine mounted inside the moving/rotated lane,
+ * 10 images held ~50fps in this sandbox's software-rendered headless Chromium
+ * (vs. a clean 60fps with plain <img>s) — the canvas repaint cost fights the
+ * marquee loop specifically because it's translating *and* rotated. The brief
+ * allows this trade explicitly; taking it here.
  */
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -36,13 +43,7 @@ function makeFigure(item: GalleryFlowItem, propIndex: number): HTMLElement {
   });
 
   const media = el('div', { class: 'gallery__media' }, [img]);
-
-  if (item.treatment === 'halftone') {
-    // particleImage draws its own canvas into this host, layered over `img`
-    // (which stays as the reduced-motion / no-JS fallback), same pattern hero.ts uses.
-    media.classList.add('gallery__media--halftone');
-    media.append(el('div', { class: 'gallery__canvas', 'aria-hidden': 'true' }));
-  }
+  if (item.treatment === 'halftone') media.classList.add('gallery__media--halftone');
 
   const frame = el(
     'div',
@@ -105,43 +106,14 @@ export const galleryFlow: BlockRenderer<GalleryFlowProps> = {
     const laneEls = Array.from(root.querySelectorAll<HTMLElement>('.gallery__lane'));
 
     let alive = true;
-    const disposers: (() => void)[] = [];
 
     entrance(head, { delay: ctx?.reducedMotion ? 0 : 0.05 });
-
-    // Halftone treatment — static progress inside the moving card. Cheap:
-    // particleImage with `progress` set paints once and never starts a
-    // per-frame loop (see engine/particle-image.ts `controlled` branch), so
-    // it costs nothing extra while the lane is translating via transform.
-    const canvasHosts = Array.from(root.querySelectorAll<HTMLElement>('.gallery__canvas'));
-    if (canvasHosts.length) {
-      import('../engine')
-        .then(({ particleImage }) => {
-          if (!alive) return;
-          canvasHosts.forEach((host) => {
-            const img = host.parentElement?.querySelector('img');
-            const src = img?.getAttribute('src');
-            if (!src) return;
-            const handle = particleImage(host, {
-              src,
-              variant: 'assemble',
-              progress: 0.9,
-              palette: 'auto',
-            });
-            disposers.push(handle.destroy);
-          });
-        })
-        .catch(() => {
-          /* engine unavailable — the <img> beneath stays visible */
-        });
-    }
 
     const reduced = ctx?.reducedMotion ?? window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       // Static diagonal composition only — no travel, no scroll nudge.
       return () => {
         alive = false;
-        disposers.forEach((d) => d());
       };
     }
 
@@ -221,7 +193,6 @@ export const galleryFlow: BlockRenderer<GalleryFlowProps> = {
       });
       tweens.forEach((t) => t.kill());
       st?.kill();
-      disposers.forEach((d) => d());
     };
   },
 };
